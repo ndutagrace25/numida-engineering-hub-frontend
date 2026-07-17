@@ -1,25 +1,24 @@
 import { DashboardWidgetCard } from "@/components/dashboard/dashboard-widget-card";
-import { cn } from "@/lib/utils";
-import { ENGINEERS, SUBMITTED } from "@/lib/fixtures/engineers";
+import type { DashboardStandupSummary } from "@/types/dashboard";
 
 export interface WeeklyProgressCardProps {
-  submittedCount: number;
-  totalCount: number;
+  summary: DashboardStandupSummary;
 }
 
 /**
  * The dashboard's "Weekly Standups" progress widget: a completion bar
- * plus every engineer's avatar, highlighted if they've submitted. Links
- * to the team weekly view — the design's own prototype wires this card's
- * "Team view →" link to team history instead, but the fully-built
+ * plus every active engineer's avatar, highlighted if they've submitted.
+ * Links to the team weekly view — the design's own prototype wires this
+ * card's "Team view →" link to team history instead, but the fully-built
  * "Team weekly view" screen has no other way to reach it, so this links
  * there instead (see the report).
  */
-export function WeeklyProgressCard({
-  submittedCount,
-  totalCount,
-}: WeeklyProgressCardProps) {
-  const pct = Math.round((submittedCount / totalCount) * 100);
+export function WeeklyProgressCard({ summary }: WeeklyProgressCardProps) {
+  const { totalActiveUsers, totalSubmittedStandups } = summary;
+  const pct =
+    totalActiveUsers === 0
+      ? 0
+      : Math.round((totalSubmittedStandups / totalActiveUsers) * 100);
 
   return (
     <DashboardWidgetCard
@@ -37,17 +36,23 @@ export function WeeklyProgressCard({
       >
         <div className="bg-primary h-full" style={{ width: `${pct}%` }} />
       </div>
-      <div className="flex gap-1.5">
-        {ENGINEERS.map((e) => (
+      <div className="flex flex-wrap gap-1.5">
+        {summary.usersWhoSubmitted.map((user) => (
           <div
-            key={e.name}
-            title={e.name}
-            className={cn(
-              "bg-muted text-text-icon flex size-[26px] items-center justify-center rounded-full border-2 text-[10px] font-bold",
-              SUBMITTED[e.name] ? "border-primary" : "border-border",
-            )}
+            key={user.id}
+            title={user.displayName}
+            className="bg-muted text-text-icon border-primary flex size-[26px] items-center justify-center rounded-full border-2 text-[10px] font-bold"
           >
-            {e.initials}
+            {user.initials}
+          </div>
+        ))}
+        {summary.usersWhoHaveNotSubmitted.map((user) => (
+          <div
+            key={user.id}
+            title={user.displayName}
+            className="bg-muted text-text-icon border-border flex size-[26px] items-center justify-center rounded-full border-2 text-[10px] font-bold"
+          >
+            {user.initials}
           </div>
         ))}
       </div>

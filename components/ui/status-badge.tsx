@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import type { DashboardPullRequestStatus } from "@/types/dashboard";
 import type { PullRequestStatus } from "@/types/pull-requests";
 
 export type StatusBadgeTone =
@@ -26,6 +27,28 @@ export function pullRequestStatusTone(
   status: PullRequestStatus,
 ): StatusBadgeTone {
   return PR_STATUS_TONE[status];
+}
+
+/**
+ * The real backend's PullRequestLink.Status enum has no "Merged"/"Draft"
+ * (never appeared in the design) but does have "Approved"/"Blocked" (no
+ * design tone exists for either) — mapped onto the closest existing tone
+ * rather than inventing new colors: Approved reuses the positive/terminal
+ * "merged" tone, Blocked reuses the attention-needed "changes-requested" one.
+ */
+const BACKEND_PR_STATUS: Record<
+  DashboardPullRequestStatus,
+  { label: string; tone: StatusBadgeTone }
+> = {
+  OPEN: { label: "Open", tone: "open" },
+  IN_REVIEW: { label: "In review", tone: "in-review" },
+  CHANGES_REQUESTED: { label: "Changes requested", tone: "changes-requested" },
+  APPROVED: { label: "Approved", tone: "merged" },
+  BLOCKED: { label: "Blocked", tone: "changes-requested" },
+};
+
+export function backendPullRequestStatus(status: DashboardPullRequestStatus) {
+  return BACKEND_PR_STATUS[status];
 }
 
 export interface StatusBadgeProps {

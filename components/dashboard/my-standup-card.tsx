@@ -4,46 +4,70 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   SectionCard,
   SectionCardHeader,
   SectionCardTitle,
 } from "@/components/ui/section-card";
-import { CURRENT_USER } from "@/lib/fixtures/engineers";
-import { WEEKLY_BY_OFFSET } from "@/lib/fixtures/standups";
+import type { DashboardStandup } from "@/types/dashboard";
 
-const TODAY_ROWS = WEEKLY_BY_OFFSET[0];
+export interface MyStandupCardProps {
+  standups: DashboardStandup[];
+  currentUserId?: number;
+}
 
 /**
- * The dashboard's paginated "today" card: cycles through every engineer's
- * DID/WORKING/BLOCKER preview, with an Edit link shown only when viewing
- * the signed-in user's own entry. Matches the design's prev/next
- * behavior exactly; this uses each engineer's static weekly fixture data
- * (not any draft being edited on /standups) to keep this phase's state
- * scoped to a single page — see the report for this simplification.
+ * The dashboard's paginated "today" card: cycles through everyone who's
+ * submitted a standup this week, with an Edit link shown only when
+ * viewing the signed-in user's own entry. `blockers` is the standup's own
+ * free-text field (not an itemized section) — shown as a single line,
+ * defaulting to "None" when empty.
  */
-export function MyStandupCard() {
+export function MyStandupCard({ standups, currentUserId }: MyStandupCardProps) {
   const [index, setIndex] = useState(0);
-  const person = TODAY_ROWS[index];
-  const isMe = person.name === CURRENT_USER.name;
+
+  if (standups.length === 0) {
+    return (
+      <SectionCard className="sm:col-span-2">
+        <SectionCardHeader>
+          <SectionCardTitle>My Standup</SectionCardTitle>
+        </SectionCardHeader>
+        <EmptyState>No one has submitted a standup this week yet.</EmptyState>
+      </SectionCard>
+    );
+  }
+
+  const standup = standups[Math.min(index, standups.length - 1)];
+  const isMe = standup.user.id === currentUserId;
 
   const items = [
-    { label: "DID", text: person.did[0] ?? "Nothing yet" },
-    { label: "WORKING", text: person.working[0] ?? "Nothing yet" },
-    { label: "BLOCKER", text: person.blockers[0] ?? "None" },
+    {
+      label: "DID",
+      text:
+        standup.items.find((i) => i.section === "COMPLETED")?.content ??
+        "Nothing yet",
+    },
+    {
+      label: "WORKING",
+      text:
+        standup.items.find((i) => i.section === "CURRENT")?.content ??
+        "Nothing yet",
+    },
+    { label: "BLOCKER", text: standup.blockers || "None" },
   ];
 
   return (
     <SectionCard className="sm:col-span-2">
       <SectionCardHeader>
         <SectionCardTitle>
-          {isMe ? "My Standup" : `${person.name} — today`}
+          {isMe ? "My Standup" : `${standup.user.displayName} — today`}
         </SectionCardTitle>
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() =>
-              setIndex((i) => (i - 1 + TODAY_ROWS.length) % TODAY_ROWS.length)
+              setIndex((i) => (i - 1 + standups.length) % standups.length)
             }
             className="focus-visible:ring-ring text-muted-foreground hover:text-foreground rounded text-[12.5px] font-semibold focus-visible:ring-2 focus-visible:outline-none"
           >
@@ -51,7 +75,7 @@ export function MyStandupCard() {
           </button>
           <button
             type="button"
-            onClick={() => setIndex((i) => (i + 1) % TODAY_ROWS.length)}
+            onClick={() => setIndex((i) => (i + 1) % standups.length)}
             className="focus-visible:ring-ring text-muted-foreground hover:text-foreground rounded text-[12.5px] font-semibold focus-visible:ring-2 focus-visible:outline-none"
           >
             Next →

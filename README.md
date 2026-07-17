@@ -4,11 +4,12 @@ Frontend foundation for the Numida Engineering Hub: standups, presence, AOB,
 PTO, and pull-request links, backed by the
 [Numida Engineering Hub backend](../numida_engineering_hub_backend).
 
-**Status:** the Standup Hub design is implemented with mock data for every
-module except authentication, which is now connected to the real Django
-backend (see [Authentication](#authentication) below). Dashboard, Standups,
-Presence, PTO, AOB, and Pull Requests still run on local fixture data in
-`lib/fixtures/` and are connected to the backend in later tasks.
+**Status:** authentication and the Dashboard are connected to the real
+Django backend (see [Authentication](#authentication) below). Standups,
+PTO, AOB, and Pull Requests still run on local fixture data in
+`lib/fixtures/` and are connected to the backend in later tasks — the
+Dashboard's own "Recent Activity" widget stays on fixture data too, since
+the backend has no activity-feed endpoint.
 
 ## Tech stack
 
@@ -198,6 +199,29 @@ The backend has no signup/registration endpoint — accounts are provisioned
 directly (Django admin, or the shell one-liner below). The design's
 "Create an account" register screen is intentionally not wired up for this
 reason.
+
+## Dashboard
+
+`GET /dashboard/?week_start=<Monday>` is a single aggregate endpoint —
+standup submission totals, that week's standups, presence, AOB, PTO, and
+pull request links — powering every dashboard widget except Recent
+Activity (no backend equivalent exists, so it stays on `lib/fixtures/`).
+`lib/api/dashboard.ts` maps the response to `types/dashboard.ts`;
+`components/dashboard/dashboard-view.tsx` fetches it via TanStack Query,
+always for the current week (`lib/week.ts` computes that week's Monday,
+since the backend requires an exact Monday date).
+
+A few backend gaps worth knowing about:
+
+- No `role`/team field on `User` — same as the sidebar/profile, any widget
+  that would show a role just omits that line.
+- `AOBItem` has no `tag`/category field — the dashboard's AOB preview
+  never showed one anyway.
+- `PullRequestLink.status` is `OPEN` / `IN_REVIEW` / `CHANGES_REQUESTED` /
+  `APPROVED` / `BLOCKED` — not the design's `Merged`/`Draft`. `Approved`
+  and `Blocked` reuse the closest existing status-badge color
+  (`components/ui/status-badge.tsx`'s `backendPullRequestStatus()`)
+  rather than inventing new ones.
 
 ## Running locally
 

@@ -1,27 +1,35 @@
 import { DashboardWidgetCard } from "@/components/dashboard/dashboard-widget-card";
-import type { AOBPost } from "@/types/aob";
+import { formatShortDate } from "@/lib/format-date";
+import type { DashboardAOBItem } from "@/types/dashboard";
 
 export interface AOBPreviewCardProps {
-  posts: AOBPost[];
+  items: DashboardAOBItem[];
 }
 
-export function AOBPreviewCard({ posts }: AOBPreviewCardProps) {
+export function AOBPreviewCard({ items }: AOBPreviewCardProps) {
   return (
     <DashboardWidgetCard
       title="AOB"
       viewAllHref="/aob"
       viewAllLabel="All posts →"
     >
-      <div className="flex flex-col gap-3">
-        {posts.map((post) => (
-          <div key={post.id}>
-            <div className="text-[13px] font-semibold">{post.title}</div>
-            <div className="text-muted-foreground mt-0.5 text-xs">
-              {post.author} · {post.date}
+      {items.length === 0 ? (
+        <p className="text-muted-foreground text-[13px]">
+          Nothing raised for this week yet.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {items.map((item) => (
+            <div key={item.id}>
+              <div className="text-[13px] font-semibold">{item.title}</div>
+              <div className="text-muted-foreground mt-0.5 text-xs">
+                {item.createdBy?.displayName ?? "Unknown"} ·{" "}
+                {formatShortDate(item.createdAt)}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </DashboardWidgetCard>
   );
 }

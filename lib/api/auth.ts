@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api/client";
 import { getApiError } from "@/lib/api/errors";
+import { getInitials } from "@/lib/initials";
 import type { ApiSuccessResponse } from "@/types/api";
 import type { AuthUser, LoginCredentials } from "@/types/auth";
 
@@ -14,15 +15,6 @@ interface UserDto {
   date_joined: string;
 }
 
-function getInitials(dto: UserDto): string {
-  const first = dto.first_name.trim();
-  const last = dto.last_name.trim();
-  if (first && last) return `${first[0]}${last[0]}`.toUpperCase();
-  if (first) return first.slice(0, 2).toUpperCase();
-  if (last) return last.slice(0, 2).toUpperCase();
-  return dto.email.slice(0, 2).toUpperCase();
-}
-
 function toAuthUser(dto: UserDto): AuthUser {
   return {
     id: dto.id,
@@ -30,7 +22,7 @@ function toAuthUser(dto: UserDto): AuthUser {
     firstName: dto.first_name,
     lastName: dto.last_name,
     displayName: dto.display_name,
-    initials: getInitials(dto),
+    initials: getInitials(dto.first_name, dto.last_name, dto.email),
     isActive: dto.is_active,
     dateJoined: dto.date_joined,
   };

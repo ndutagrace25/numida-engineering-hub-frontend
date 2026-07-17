@@ -1,21 +1,35 @@
 import { DashboardWidgetCard } from "@/components/dashboard/dashboard-widget-card";
-import type { PTOEntry } from "@/types/pto";
+import { formatDateRange } from "@/lib/format-date";
+import type { DashboardPTOEntry } from "@/types/dashboard";
 
 export interface PTOPreviewCardProps {
-  entries: PTOEntry[];
+  entries: DashboardPTOEntry[];
 }
 
 export function PTOPreviewCard({ entries }: PTOPreviewCardProps) {
   return (
     <DashboardWidgetCard title="Upcoming PTO" viewAllHref="/pto">
-      <div className="flex flex-col gap-2.5">
-        {entries.map((p) => (
-          <div key={p.id} className="flex items-center justify-between gap-2">
-            <div className="text-[13px] font-medium">{p.name}</div>
-            <div className="text-muted-foreground text-xs">{p.range}</div>
-          </div>
-        ))}
-      </div>
+      {entries.length === 0 ? (
+        <p className="text-muted-foreground text-[13px]">
+          No upcoming PTO for this week.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          {entries.map((entry) => (
+            <div
+              key={entry.id}
+              className="flex items-center justify-between gap-2"
+            >
+              <div className="text-[13px] font-medium">
+                {entry.user?.displayName ?? "Unknown"}
+              </div>
+              <div className="text-muted-foreground text-xs">
+                {formatDateRange(entry.startDate, entry.endDate)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </DashboardWidgetCard>
   );
 }
