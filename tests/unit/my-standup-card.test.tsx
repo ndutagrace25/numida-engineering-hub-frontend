@@ -58,12 +58,12 @@ describe("MyStandupCard", () => {
     render(<MyStandupCard standups={[aisha]} currentUserId={200} />);
 
     expect(screen.getByText("What did I do?")).toBeInTheDocument();
-    expect(screen.getByText("— Shipped the thing")).toBeInTheDocument();
-    expect(screen.getByText("— Reviewed a PR")).toBeInTheDocument();
+    expect(screen.getByText("Shipped the thing")).toBeInTheDocument();
+    expect(screen.getByText("Reviewed a PR")).toBeInTheDocument();
     expect(screen.getByText("What am I working on?")).toBeInTheDocument();
-    expect(screen.getByText("— Migrating the store")).toBeInTheDocument();
+    expect(screen.getByText("Migrating the store")).toBeInTheDocument();
     expect(screen.getByText("What do I plan to do?")).toBeInTheDocument();
-    expect(screen.getByText("— Write the RFC")).toBeInTheDocument();
+    expect(screen.getByText("Write the RFC")).toBeInTheDocument();
   });
 
   it("omits a section heading entirely when that section has no items", () => {
@@ -92,7 +92,7 @@ describe("MyStandupCard", () => {
 
     expect(screen.getByText("My Standup")).toBeInTheDocument();
     expect(screen.getByText("Blockers")).toBeInTheDocument();
-    expect(screen.getByText("— Waiting on infra")).toBeInTheDocument();
+    expect(screen.getByText("Waiting on infra")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Edit" })).toBeInTheDocument();
   });
 

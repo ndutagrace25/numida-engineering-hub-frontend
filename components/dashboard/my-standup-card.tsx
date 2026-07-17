@@ -107,9 +107,13 @@ export function MyStandupCard({ standups, currentUserId }: MyStandupCardProps) {
                   {contents.map((text, i) => (
                     <div
                       key={i}
-                      className="text-text-body py-0.5 text-[13.5px]"
+                      className="text-text-body flex items-start gap-2 py-0.5 text-[13.5px]"
                     >
-                      — {text}
+                      <span
+                        aria-hidden="true"
+                        className="bg-primary mt-[7px] size-[5px] shrink-0 rounded-full"
+                      />
+                      <span className="flex-1">{text}</span>
                     </div>
                   ))}
                 </div>
@@ -125,8 +129,15 @@ export function MyStandupCard({ standups, currentUserId }: MyStandupCardProps) {
             Blockers
           </div>
           {blockerLines.map((text, i) => (
-            <div key={i} className="text-destructive py-0.5 text-[13.5px]">
-              — {text}
+            <div
+              key={i}
+              className="text-destructive flex items-start gap-2 py-0.5 text-[13.5px]"
+            >
+              <span
+                aria-hidden="true"
+                className="mt-[7px] size-[5px] shrink-0 rounded-full bg-[#D6685E]"
+              />
+              <span className="flex-1">{text}</span>
             </div>
           ))}
         </div>
