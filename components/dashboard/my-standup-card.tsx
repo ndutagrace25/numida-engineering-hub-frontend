@@ -11,18 +11,40 @@ import {
   SectionCardTitle,
 } from "@/components/ui/section-card";
 import type { DashboardStandup } from "@/types/dashboard";
+import type { StandupItemSection } from "@/types/standups";
 
 export interface MyStandupCardProps {
   standups: DashboardStandup[];
   currentUserId?: number;
 }
 
+const SECTION_COLUMNS: { section: StandupItemSection; label: string }[][] = [
+  [
+    { section: "COMPLETED", label: "What did I do?" },
+    { section: "CURRENT", label: "What am I working on?" },
+  ],
+  [
+    { section: "PLANNED", label: "What do I plan to do?" },
+    { section: "MEETING", label: "Meetings" },
+  ],
+];
+
+function contentsBySection(
+  standup: DashboardStandup,
+  section: StandupItemSection,
+): string[] {
+  return standup.items
+    .filter((item) => item.section === section)
+    .sort((a, b) => a.position - b.position)
+    .map((item) => item.content);
+}
+
 /**
- * The dashboard's paginated "today" card: cycles through everyone who's
- * submitted a standup this week, with an Edit link shown only when
- * viewing the signed-in user's own entry. `blockers` is the standup's own
- * free-text field (not an itemized section) — shown as a single line,
- * defaulting to "None" when empty.
+ * The dashboard's paginated standup card: cycles through everyone who's
+ * submitted this week, showing every section in full (not a truncated
+ * one-line-per-section summary) — a moderator reads through each
+ * person's complete entry via Previous/Next during standup. An Edit
+ * link is shown only when viewing the signed-in user's own entry.
  */
 export function MyStandupCard({ standups, currentUserId }: MyStandupCardProps) {
   const [index, setIndex] = useState(0);
@@ -40,22 +62,10 @@ export function MyStandupCard({ standups, currentUserId }: MyStandupCardProps) {
 
   const standup = standups[Math.min(index, standups.length - 1)];
   const isMe = standup.user.id === currentUserId;
-
-  const items = [
-    {
-      label: "DID",
-      text:
-        standup.items.find((i) => i.section === "COMPLETED")?.content ??
-        "Nothing yet",
-    },
-    {
-      label: "WORKING",
-      text:
-        standup.items.find((i) => i.section === "CURRENT")?.content ??
-        "Nothing yet",
-    },
-    { label: "BLOCKER", text: standup.blockers || "None" },
-  ];
+  const blockerLines = standup.blockers
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   return (
     <SectionCard className="sm:col-span-2">
@@ -83,19 +93,44 @@ export function MyStandupCard({ standups, currentUserId }: MyStandupCardProps) {
         </div>
       </SectionCardHeader>
 
-      <div className="flex flex-col gap-2">
-        {items.map((row) => (
-          <div
-            key={row.label}
-            className="text-text-body flex gap-2.5 text-[13.5px]"
-          >
-            <span className="text-primary min-w-[70px] text-[11px] font-bold">
-              {row.label}
-            </span>
-            <span>{row.text}</span>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        {SECTION_COLUMNS.map((column, columnIndex) => (
+          <div key={columnIndex} className="flex flex-col gap-3">
+            {column.map(({ section, label }) => {
+              const contents = contentsBySection(standup, section);
+              if (contents.length === 0) return null;
+              return (
+                <div key={section}>
+                  <div className="text-primary mb-1 text-[11px] font-bold tracking-[0.3px] uppercase">
+                    {label}
+                  </div>
+                  {contents.map((text, i) => (
+                    <div
+                      key={i}
+                      className="text-text-body py-0.5 text-[13.5px]"
+                    >
+                      — {text}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
+
+      {blockerLines.length > 0 && (
+        <div className="border-border-subtle mt-3.5 border-t pt-3">
+          <div className="text-destructive mb-1 text-[11px] font-bold tracking-[0.3px] uppercase">
+            Blockers
+          </div>
+          {blockerLines.map((text, i) => (
+            <div key={i} className="text-destructive py-0.5 text-[13.5px]">
+              — {text}
+            </div>
+          ))}
+        </div>
+      )}
 
       {isMe && (
         <Link
