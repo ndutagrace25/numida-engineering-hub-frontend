@@ -1,13 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = 3000;
-const baseURL = `http://127.0.0.1:${PORT}`;
+// Must be "localhost", not "127.0.0.1": the backend's session cookie is set
+// for the "localhost" host the frontend calls it through, and Chrome treats
+// "localhost"/"127.0.0.1" as different sites for SameSite=Lax cookie
+// purposes — a page served from 127.0.0.1 would silently never receive or
+// send that cookie at all, breaking every authenticated request.
+const baseURL = `http://localhost:${PORT}`;
 
-/**
- * Minimal Playwright configuration for the frontend foundation. Only a
- * single smoke test exists so far (tests/e2e/home.spec.ts) — full product
- * E2E coverage is added alongside each feature module.
- */
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -19,9 +19,25 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   projects: [
+    // auth.setup.ts logs in once against the real backend and saves the
+    // session cookie to tests/e2e/.auth/user.json.
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
+    // auth.spec.ts exercises the unauthenticated experience itself (login,
+    // invalid credentials, redirects) — it must NOT start pre-authenticated.
+    {
+      name: "chromium-unauthenticated",
+      testMatch: /auth\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    // Every other spec assumes an authenticated session already exists.
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      testIgnore: /auth\.(spec|setup)\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "tests/e2e/.auth/user.json",
+      },
+      dependencies: ["setup"],
     },
   ],
   webServer: {

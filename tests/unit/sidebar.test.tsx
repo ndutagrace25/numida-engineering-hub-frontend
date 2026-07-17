@@ -8,6 +8,19 @@ const usePathnameMock = vi.fn();
 vi.mock("next/navigation", () => ({
   usePathname: () => usePathnameMock(),
   useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock("@/hooks/use-auth", () => ({
+  useAuth: () => ({
+    user: {
+      id: 1,
+      email: "grace@numida.com",
+      displayName: "Grace Nduta",
+      initials: "GN",
+    },
+    logout: vi.fn(),
+  }),
 }));
 
 describe("Sidebar", () => {

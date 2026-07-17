@@ -2,13 +2,13 @@
 
 import { LogOut } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Logomark } from "@/components/layout/logomark";
 import { PRIMARY_NAV } from "@/components/layout/nav-config";
 import { ProfileAvatar } from "@/components/ui/profile-avatar";
+import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
-import { CURRENT_USER } from "@/lib/fixtures/engineers";
 
 function useIsActive() {
   const pathname = usePathname();
@@ -45,6 +45,17 @@ export interface SidebarProps {
  */
 export function Sidebar({ className, onNavigate }: SidebarProps) {
   const isActive = useIsActive();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  async function handleLogout() {
+    onNavigate?.();
+    // Local session state is always cleared regardless of outcome (see
+    // AuthProvider's logoutMutation), so navigating to login afterwards is
+    // safe even if the backend call itself failed (e.g. a network error).
+    await logout().catch(() => {});
+    router.push("/auth/login");
+  }
 
   return (
     <nav
@@ -92,34 +103,36 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
       <div className="flex-1" />
 
       <div className="border-border flex flex-col gap-0.5 border-t px-3 py-2.5">
-        <Link
-          href="/profile"
-          onClick={onNavigate}
-          className={cn(
-            "flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors",
-            "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
-            isActive("/profile") ? "bg-accent" : "hover:bg-muted",
-          )}
-          aria-current={isActive("/profile") ? "page" : undefined}
-        >
-          <ProfileAvatar initials={CURRENT_USER.initials} size="md" />
-          <div className="flex flex-col leading-[1.15]">
-            <span className="text-[13.5px] font-semibold">
-              {CURRENT_USER.name}
-            </span>
-            <span className="text-muted-foreground text-[11px]">
-              {CURRENT_USER.role}
-            </span>
-          </div>
-        </Link>
-        <Link
-          href="/dashboard"
-          onClick={onNavigate}
+        {user && (
+          <Link
+            href="/profile"
+            onClick={onNavigate}
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors",
+              "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
+              isActive("/profile") ? "bg-accent" : "hover:bg-muted",
+            )}
+            aria-current={isActive("/profile") ? "page" : undefined}
+          >
+            <ProfileAvatar initials={user.initials} size="md" />
+            <div className="flex min-w-0 flex-col leading-[1.15]">
+              <span className="truncate text-[13.5px] font-semibold">
+                {user.displayName}
+              </span>
+              <span className="text-muted-foreground truncate text-[11px]">
+                {user.email}
+              </span>
+            </div>
+          </Link>
+        )}
+        <button
+          type="button"
+          onClick={handleLogout}
           className="text-muted-foreground hover:bg-muted focus-visible:ring-ring flex items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-[13px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
         >
           <LogOut className="size-4" strokeWidth={1.6} aria-hidden="true" />
           <span>Log out</span>
-        </Link>
+        </button>
       </div>
     </nav>
   );

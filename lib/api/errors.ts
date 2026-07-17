@@ -48,3 +48,23 @@ export function getApiError(error: unknown): ApiError {
     fields: {},
   };
 }
+
+/**
+ * A safe, user-facing message for any caught request error. Backend
+ * validation/auth messages (e.g. "Unable to log in with the provided
+ * credentials.") are already written to be shown to users, so those pass
+ * through as-is; network failures and unexpected server errors — which
+ * carry no safe message from the backend — get a generic fallback instead
+ * of leaking Axios/HTTP internals.
+ */
+export function getErrorMessage(error: unknown): string {
+  const apiError = getApiError(error);
+
+  if (apiError.status === 0) {
+    return "Can't reach the server. Check your connection and try again.";
+  }
+  if (apiError.status >= 500) {
+    return "Something went wrong on our end. Please try again.";
+  }
+  return apiError.message;
+}

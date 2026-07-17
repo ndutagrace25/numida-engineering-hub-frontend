@@ -7,6 +7,19 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 vi.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
   useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}));
+
+vi.mock("@/hooks/use-auth", () => ({
+  useAuth: () => ({
+    user: {
+      id: 1,
+      email: "grace@numida.com",
+      displayName: "Grace Nduta",
+      initials: "GN",
+    },
+    logout: vi.fn(),
+  }),
 }));
 
 describe("MobileNav", () => {

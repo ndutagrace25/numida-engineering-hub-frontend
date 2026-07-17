@@ -9,6 +9,18 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
+vi.mock("@/hooks/use-auth", () => ({
+  useAuth: () => ({
+    user: {
+      id: 1,
+      email: "grace@numida.com",
+      displayName: "Grace Nduta",
+      initials: "GN",
+    },
+    logout: vi.fn(),
+  }),
+}));
+
 describe("AppShell", () => {
   it("renders the page title, the primary navigation, and its children", () => {
     render(
