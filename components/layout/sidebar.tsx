@@ -67,14 +67,9 @@ export function Sidebar({ className, onNavigate }: SidebarProps) {
     >
       <div className="flex items-center gap-2 px-5 pt-[22px] pb-[18px]">
         <Logomark size="sm" />
-        <div className="flex flex-col leading-[1.1]">
-          <span className="text-sidebar-primary text-sm font-bold tracking-[0.2px]">
-            Numida
-          </span>
-          <span className="text-muted-foreground text-[11px] font-medium">
-            Standup Hub
-          </span>
-        </div>
+        <span className="text-muted-foreground text-[11px] font-medium">
+          Standup Hub
+        </span>
       </div>
 
       <div className="mt-1 flex flex-col gap-0.5 px-3">

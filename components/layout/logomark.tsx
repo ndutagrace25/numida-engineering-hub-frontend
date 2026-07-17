@@ -1,8 +1,13 @@
+import Image from "next/image";
+
 import { cn } from "@/lib/utils";
 
+// Source image is 1080x400 (2.7:1) — the "sm"/"lg" heights below match the
+// square footprint the previous CSS-drawn placeholder used, with width
+// derived from that same ratio so the real logo isn't stretched/cropped.
 const SIZE_MAP = {
-  sm: { box: 28, dot: 10, radius: "rounded-lg" },
-  lg: { box: 44, dot: 15, radius: "rounded-[11px]" },
+  sm: { width: 76, height: 28 },
+  lg: { width: 119, height: 44 },
 } as const;
 
 export interface LogomarkProps {
@@ -10,27 +15,17 @@ export interface LogomarkProps {
   className?: string;
 }
 
-/**
- * The abstract mark used throughout the design: a dark teal rounded
- * square with a smaller cyan square inset. Reproduced exactly as drawn
- * in the design (plain divs, not the separately-exported logo PNG, which
- * the design itself never references).
- */
+/** The Numida logo (public/numida-logo.jpg) used wherever the design calls for it. */
 export function Logomark({ size = "sm", className }: LogomarkProps) {
-  const { box, dot, radius } = SIZE_MAP[size];
+  const { width, height } = SIZE_MAP[size];
   return (
-    <div
-      className={cn(
-        "bg-sidebar-primary flex shrink-0 items-center justify-center",
-        radius,
-        className,
-      )}
-      style={{ width: box, height: box }}
-    >
-      <div
-        className="bg-primary rounded-[3px]"
-        style={{ width: dot, height: dot }}
-      />
-    </div>
+    <Image
+      src="/numida-logo.jpg"
+      alt="Numida"
+      width={width}
+      height={height}
+      className={cn("shrink-0 object-contain", className)}
+      priority
+    />
   );
 }
