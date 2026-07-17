@@ -1,25 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto } from "next/font/google";
 
 import { AppProviders } from "@/providers/app-providers";
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// The imported design (Standup Hub.dc.html) loads Roboto 400/500/600/700
+// from Google Fonts as its one and only typeface. The CSS variable is
+// named "--font-sans" (not "--font-roboto") to match what globals.css's
+// @theme block already expects.
+const roboto = Roboto({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// Plain, unbranded metadata for now — the design system (and with it, any
-// real branding) is implemented in a later task.
 export const metadata: Metadata = {
-  title: "Numida Engineering Hub",
-  description: "Internal engineering workspace.",
+  title: "Numida Engineering Hub — Standup Hub",
+  description:
+    "Internal engineering workspace: standups, presence, AOB, PTO, and pull requests.",
 };
 
 export default function RootLayout({
@@ -28,10 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${roboto.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <AppProviders>{children}</AppProviders>
       </body>

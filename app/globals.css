@@ -4,11 +4,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Design tokens imported from the Standup Hub Claude Design project
+ * ("Standup Hub.dc.html"). Colors, radii, and the ShadCN semantic
+ * variables below are all sourced from that file — see
+ * app/design-guidelines/page.tsx for the in-app reference built from the
+ * same source. Tailwind's default spacing scale (4/8/12/16/20/24/32/40px)
+ * already matches the design's spacing scale exactly, so no custom
+ * spacing tokens were needed.
+ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -27,6 +36,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -42,47 +52,142 @@
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
+  /* Hardcoded (not derived) to match the design's 12px card radius exactly. */
+  --radius-xl: 0.75rem;
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Brand scale (Design guidelines page: "Color" — 100/200/300/400/500) */
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+
+  /* Text scale beyond the ShadCN foreground/muted-foreground pair */
+  --color-text-body: var(--text-body);
+  --color-text-label: var(--text-label);
+  --color-text-icon: var(--text-icon);
+  --color-text-faint: var(--text-faint);
+
+  /* Surfaces */
+  --color-surface-sidebar: var(--surface-sidebar);
+
+  /* Borders */
+  --color-border-subtle: var(--border-subtle);
+
+  /* Status badges (matches STATUS_COLORS in the design's data) */
+  --color-status-open-bg: var(--status-open-bg);
+  --color-status-open-fg: var(--status-open-fg);
+  --color-status-in-review-bg: var(--status-in-review-bg);
+  --color-status-in-review-fg: var(--status-in-review-fg);
+  --color-status-changes-requested-bg: var(--status-changes-requested-bg);
+  --color-status-changes-requested-fg: var(--status-changes-requested-fg);
+  --color-status-merged-bg: var(--status-merged-bg);
+  --color-status-merged-fg: var(--status-merged-fg);
+  --color-status-draft-bg: var(--status-draft-bg);
+  --color-status-draft-fg: var(--status-draft-fg);
+
+  /* Presence dots */
+  --color-presence-online: var(--presence-online);
+  --color-presence-away: var(--presence-away);
+  --color-presence-offline: var(--presence-offline);
+
+  /* State panels (Design guidelines page: "States") */
+  --color-state-error-bg: var(--state-error-bg);
+  --color-state-error-border: var(--state-error-border);
+  --color-state-error-fg: var(--state-error-fg);
+  --color-state-error-body: var(--state-error-body);
+  --color-state-success-bg: var(--state-success-bg);
+  --color-state-success-border: var(--state-success-border);
+  --color-state-success-fg: var(--state-success-fg);
+  --color-state-success-body: var(--state-success-body);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* ShadCN semantic tokens, remapped to the imported design's palette. */
+  --background: #fafbfb;
+  --foreground: #1b2229;
+  --card: #ffffff;
+  --card-foreground: #1b2229;
+  --popover: #ffffff;
+  --popover-foreground: #1b2229;
+  --primary: #30c2e3;
+  --primary-foreground: #0d2b32;
+  --secondary: #f1f2f4;
+  --secondary-foreground: #4b5563;
+  --muted: #eef1f3;
+  --muted-foreground: #8a94a0;
+  --accent: #e3f6fa;
+  --accent-foreground: #114652;
+  --destructive: #b23b3b;
+  --destructive-foreground: #ffffff;
+  --border: #e7ebee;
+  --input: #dde3e7;
+  /* Matches the design's own input:focus outline color exactly. */
+  --ring: #30c2e3;
+  --chart-1: #b4e9f5;
+  --chart-2: #72d6ec;
+  --chart-3: #30c2e3;
+  --chart-4: #21849a;
+  --chart-5: #114652;
+  --radius: 0.5rem;
+  --sidebar: #fcfdfd;
+  --sidebar-foreground: #1b2229;
+  --sidebar-primary: #114652;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e3f6fa;
+  --sidebar-accent-foreground: #114652;
+  --sidebar-border: #e7ebee;
+  --sidebar-ring: #30c2e3;
+
+  --brand-100: #b4e9f5;
+  --brand-200: #72d6ec;
+  --brand-300: #30c2e3;
+  --brand-400: #21849a;
+  --brand-500: #114652;
+
+  --text-body: #2c3540;
+  --text-label: #3a4451;
+  --text-icon: #4b5563;
+  --text-faint: #b7bfc6;
+
+  --surface-sidebar: #fcfdfd;
+
+  --border-subtle: #f0f2f4;
+
+  --status-open-bg: #eaf7fb;
+  --status-open-fg: #21849a;
+  --status-in-review-bg: #fdf3dc;
+  --status-in-review-fg: #8a6d1f;
+  --status-changes-requested-bg: #fbeae8;
+  --status-changes-requested-fg: #b23b3b;
+  --status-merged-bg: #eef7ec;
+  --status-merged-fg: #2e7d32;
+  --status-draft-bg: #f1f2f4;
+  --status-draft-fg: #5c6672;
+
+  --presence-online: #3fa34d;
+  --presence-away: #d9a441;
+  --presence-offline: #b7bfc6;
+
+  --state-error-bg: #fbeae8;
+  --state-error-border: #f5d0cc;
+  --state-error-fg: #b23b3b;
+  --state-error-body: #8a3a34;
+  --state-success-bg: #eef7ec;
+  --state-success-border: #c7e7c2;
+  --state-success-fg: #2e7d32;
+  --state-success-body: #356b38;
 }
 
+/*
+ * The imported design has no dark mode variants — .dark keeps ShadCN's
+ * own neutral defaults untouched so nothing breaks if it's ever toggled,
+ * but none of the design-specific tokens above are redefined here since
+ * the source design never specifies a dark palette.
+ */
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
@@ -126,5 +231,8 @@
   }
   html {
     @apply font-sans;
+  }
+  ::placeholder {
+    color: #9aa5ad;
   }
 }
