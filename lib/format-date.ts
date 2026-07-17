@@ -13,6 +13,21 @@ export const MONTH_LABELS = [
   "Dec",
 ];
 
+export const MONTH_LABELS_FULL = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
 /** "2026-07-15T09:00:00Z" or "2026-07-15" -> "Jul 15". */
 export function formatShortDate(value: string): string {
   const [year, month, day] = value.slice(0, 10).split("-").map(Number);

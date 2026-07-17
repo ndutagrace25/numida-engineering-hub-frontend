@@ -23,6 +23,12 @@ function parseDateParam(value: string): Date {
   return new Date(year, month - 1, day);
 }
 
+/** A YYYY-MM-DD date string shifted by `days` (negative to go back). */
+export function shiftWeek(date: string, days: number): string {
+  const [year, month, day] = date.split("-").map(Number);
+  return formatDateParam(new Date(year, month - 1, day + days));
+}
+
 /** "Jul 14–18" (same month) or "Jul 28 – Aug 3" (crossing a month boundary). */
 export function formatWeekRangeLabel(
   weekStart: string,

@@ -1,46 +1,29 @@
+import type { Standup } from "@/types/standups";
+import type { UserRef } from "@/types/user-ref";
+
 /**
  * Domain types for GET /dashboard/, normalized from the backend's
  * snake_case response (see apps/dashboard/serializers.py). `role` never
  * appears anywhere here — the backend's User model has no such field.
  */
 
-export interface DashboardUserRef {
-  id: number;
-  firstName: string;
-  lastName: string;
-  displayName: string;
-  initials: string;
-}
+/** @deprecated import UserRef from "@/types/user-ref" directly. */
+export type DashboardUserRef = UserRef;
 
-export type StandupSection = "COMPLETED" | "CURRENT" | "PLANNED" | "MEETING";
-
-export interface DashboardStandupItem {
-  id: number;
-  section: StandupSection;
-  content: string;
-  position: number;
-}
-
-/** blockers is a single free-text field on the standup itself, not an itemized section. */
-export interface DashboardStandup {
-  id: number;
-  user: DashboardUserRef;
-  standupDate: string;
-  blockers: string;
-  items: DashboardStandupItem[];
-}
+/** @deprecated import Standup from "@/types/standups" directly. */
+export type DashboardStandup = Standup;
 
 export interface DashboardStandupSummary {
   totalActiveUsers: number;
   totalSubmittedStandups: number;
-  usersWhoSubmitted: DashboardUserRef[];
-  usersWhoHaveNotSubmitted: DashboardUserRef[];
+  usersWhoSubmitted: UserRef[];
+  usersWhoHaveNotSubmitted: UserRef[];
 }
 
 export type PresenceStatus = "ONLINE" | "RECENTLY_ACTIVE" | "OFFLINE";
 
 export interface DashboardPresenceEntry {
-  user: DashboardUserRef;
+  user: UserRef;
   lastSeenAt: string | null;
 }
 
@@ -58,18 +41,18 @@ export interface DashboardAOBItem {
   externalUrl: string | null;
   weekStart: string;
   position: number;
-  createdBy: DashboardUserRef | null;
+  createdBy: UserRef | null;
   createdAt: string;
 }
 
 export interface DashboardPTOEntry {
   id: number;
-  user: DashboardUserRef | null;
+  user: UserRef | null;
   startDate: string;
   endDate: string;
   reason: string;
   handoverUrl: string | null;
-  createdBy: DashboardUserRef | null;
+  createdBy: UserRef | null;
 }
 
 /** Differs from the mock fixture's status strings — no Merged/Draft, has Approved/Blocked instead. */

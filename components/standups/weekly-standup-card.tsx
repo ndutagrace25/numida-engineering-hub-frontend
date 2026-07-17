@@ -31,7 +31,9 @@ export function WeeklyStandupCard({ row }: WeeklyStandupCardProps) {
       <div className="mb-3.5 flex items-center gap-2.5">
         <ProfileAvatar initials={row.initials} size="lg" />
         <div className="text-[14.5px] font-semibold">{row.name}</div>
-        <div className="text-muted-foreground text-[12.5px]">{row.role}</div>
+        {row.role && (
+          <div className="text-muted-foreground text-[12.5px]">{row.role}</div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">

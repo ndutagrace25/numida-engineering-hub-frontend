@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api/client";
-import { getInitials } from "@/lib/initials";
+import { toStandup, type StandupDto } from "@/lib/api/standups";
+import { toUserRef, type UserRefDto } from "@/lib/api/user-ref";
 import type { ApiSuccessResponse } from "@/types/api";
 import type {
   Dashboard,
@@ -8,36 +9,10 @@ import type {
   DashboardPresenceEntry,
   DashboardPTOEntry,
   DashboardPullRequestLink,
-  DashboardStandup,
-  DashboardStandupItem,
   DashboardStandupSummary,
-  DashboardUserRef,
-  StandupSection,
 } from "@/types/dashboard";
 
 /** Raw shapes of apps/dashboard/serializers.py's nested serializers. */
-interface UserRefDto {
-  id: number;
-  first_name: string;
-  last_name: string;
-  display_name: string;
-}
-
-interface StandupItemDto {
-  id: number;
-  section: StandupSection;
-  content: string;
-  position: number;
-}
-
-interface StandupDto {
-  id: number;
-  user: UserRefDto;
-  standup_date: string;
-  blockers: string;
-  items: StandupItemDto[];
-}
-
 interface StandupSummaryDto {
   total_active_users: number;
   total_submitted_standups: number;
@@ -97,35 +72,6 @@ interface DashboardDto {
   aob_items: AOBItemDto[];
   pto_entries: PTOEntryDto[];
   pull_request_links: PullRequestLinkDto[];
-}
-
-function toUserRef(dto: UserRefDto): DashboardUserRef {
-  return {
-    id: dto.id,
-    firstName: dto.first_name,
-    lastName: dto.last_name,
-    displayName: dto.display_name,
-    initials: getInitials(dto.first_name, dto.last_name, dto.display_name),
-  };
-}
-
-function toStandupItem(dto: StandupItemDto): DashboardStandupItem {
-  return {
-    id: dto.id,
-    section: dto.section,
-    content: dto.content,
-    position: dto.position,
-  };
-}
-
-function toStandup(dto: StandupDto): DashboardStandup {
-  return {
-    id: dto.id,
-    user: toUserRef(dto.user),
-    standupDate: dto.standup_date,
-    blockers: dto.blockers,
-    items: dto.items.map(toStandupItem),
-  };
 }
 
 function toStandupSummary(dto: StandupSummaryDto): DashboardStandupSummary {

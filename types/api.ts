@@ -12,6 +12,14 @@ export interface ApiSuccessResponse<T> {
   data: T;
 }
 
+/** The `data` shape for any paginated list endpoint (common/pagination.py). */
+export interface PaginatedData<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 export interface ApiErrorFields {
   [field: string]: string[];
 }

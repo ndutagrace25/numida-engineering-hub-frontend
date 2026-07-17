@@ -48,4 +48,11 @@ describe("WeeklyStandupCard", () => {
     expect(screen.getByText("Blockers")).toBeInTheDocument();
     expect(screen.getByText("— Waiting on infra")).toBeInTheDocument();
   });
+
+  it("omits the role line entirely when role is empty (the backend has no role field)", () => {
+    render(<WeeklyStandupCard row={{ ...baseRow, role: "" }} />);
+
+    expect(screen.getByText("Aisha Nakato")).toBeInTheDocument();
+    expect(screen.queryByText("Backend Engineer")).not.toBeInTheDocument();
+  });
 });

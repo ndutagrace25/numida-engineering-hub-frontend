@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ENGINEERS } from "@/lib/fixtures/engineers";
+import type { HistoryFilterOption } from "@/lib/history-filter-options";
+import type { UserRef } from "@/types/user-ref";
 
 export interface HistoryFiltersValue {
   search: string;
@@ -22,26 +23,19 @@ export interface HistoryFiltersProps {
   value: HistoryFiltersValue;
   onChange: (value: HistoryFiltersValue) => void;
   isTeamTab: boolean;
+  monthOptions: HistoryFilterOption[];
+  weekOptions: HistoryFilterOption[];
+  engineers: UserRef[];
 }
-
-const MONTH_OPTIONS = [
-  { value: "all", label: "All months" },
-  { value: "Jul 2026", label: "July 2026" },
-  { value: "Jun 2026", label: "June 2026" },
-];
-
-const WEEK_OPTIONS = [
-  { value: "all", label: "All weeks" },
-  { value: "Week 29", label: "Week 29" },
-  { value: "Week 28", label: "Week 28" },
-  { value: "Week 27", label: "Week 27" },
-];
 
 /** Search + month/week/engineer filters shown above My/Team History. */
 export function HistoryFilters({
   value,
   onChange,
   isTeamTab,
+  monthOptions,
+  weekOptions,
+  engineers,
 }: HistoryFiltersProps) {
   return (
     <div className="mb-5 flex flex-wrap gap-2.5">
@@ -74,7 +68,8 @@ export function HistoryFilters({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {MONTH_OPTIONS.map((o) => (
+          <SelectItem value="all">All months</SelectItem>
+          {monthOptions.map((o) => (
             <SelectItem key={o.value} value={o.value}>
               {o.label}
             </SelectItem>
@@ -93,7 +88,8 @@ export function HistoryFilters({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {WEEK_OPTIONS.map((o) => (
+          <SelectItem value="all">All weeks</SelectItem>
+          {weekOptions.map((o) => (
             <SelectItem key={o.value} value={o.value}>
               {o.label}
             </SelectItem>
@@ -116,9 +112,9 @@ export function HistoryFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All engineers</SelectItem>
-            {ENGINEERS.map((e) => (
-              <SelectItem key={e.name} value={e.name}>
-                {e.name}
+            {engineers.map((engineer) => (
+              <SelectItem key={engineer.id} value={String(engineer.id)}>
+                {engineer.displayName}
               </SelectItem>
             ))}
           </SelectContent>

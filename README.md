@@ -4,12 +4,12 @@ Frontend foundation for the Numida Engineering Hub: standups, presence, AOB,
 PTO, and pull-request links, backed by the
 [Numida Engineering Hub backend](../numida_engineering_hub_backend).
 
-**Status:** authentication and the Dashboard are connected to the real
-Django backend (see [Authentication](#authentication) below). Standups,
-PTO, AOB, and Pull Requests still run on local fixture data in
-`lib/fixtures/` and are connected to the backend in later tasks — the
-Dashboard's own "Recent Activity" widget stays on fixture data too, since
-the backend has no activity-feed endpoint.
+**Status:** authentication, the Dashboard, and Standups are connected to
+the real Django backend (see [Authentication](#authentication) and
+[Standups](#standups) below). PTO, AOB, and Pull Requests still run on
+local fixture data in `lib/fixtures/` and are connected to the backend in
+later tasks — the Dashboard's own "Recent Activity" widget stays on
+fixture data too, since the backend has no activity-feed endpoint.
 
 ## Tech stack
 
@@ -222,6 +222,42 @@ A few backend gaps worth knowing about:
   and `Blocked` reuse the closest existing status-badge color
   (`components/ui/status-badge.tsx`'s `backendPullRequestStatus()`)
   rather than inventing new ones.
+
+## Standups
+
+Backed by the full `apps.standups` CRUD API: `POST /standups/` (create),
+`PATCH /standups/<id>/` (update), `GET /standups/weekly/?week_start=` (a
+week's standups, unpaginated), and `GET /standups/` (every standup,
+filterable by `user`/`standup_date`/`date_after`/`date_before`/`search`).
+`lib/api/standups.ts` wraps all four; `components/standups/
+standup-mapping.ts` holds every Standup ↔ view-model mapping used across
+the three connected screens.
+
+**Convention, not a backend rule:** a "standup" models one calendar day
+(`standup_date`, unique per user per day), but this app treats each
+user's entry as covering their whole week, dated to that week's Monday
+(`lib/week.ts`'s `getMondayOf()`). `/standups` checks for an existing
+entry at `standup_date=<this week's Monday>` for the signed-in user —
+found means edit (PATCH), not found means create (POST).
+
+- **`/standups`** — loads the current week's existing entry if there is
+  one (else starts blank), and POSTs/PATCHes on submit. `blockers` is a
+  single free-text field on the backend, not an itemized section — it's
+  split on newlines into the same bullet-list editor as the other
+  sections, and joined back with `\n` on save. The design's "autosaves as
+  you type" subtitle was never real even before this connection — changed
+  to the actual week range, since the Submit button is the only save path.
+- **`/standups/weekly`** — `?week=<Monday date>` replaces the design's
+  0/1 "this week"/"last week" offset scheme, since real weeks aren't
+  bounded to two. Prev/Next shift by 7 days with no artificial limit; an
+  empty week just shows the empty state.
+- **`/standups/history`** — search, month, and week filters all map onto
+  real `GET /standups/` query params rather than client-side filtering.
+  Month/week options are a computed rolling window (last 6 months, last
+  12 weeks) — the design's own dropdowns had no backend concept behind
+  them, so each option carries a real `date_after`/`date_before` range
+  instead. The engineer filter (Team tab) maps to `user=<id>`, with
+  options from a lightweight `GET /users/` fetch.
 
 ## Running locally
 
