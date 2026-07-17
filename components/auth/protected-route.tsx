@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
+import { PresenceHeartbeat } from "@/components/presence/presence-heartbeat";
 import { useAuth } from "@/hooks/use-auth";
 
 /**
@@ -29,5 +30,10 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <div className="bg-background min-h-dvh w-full" />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <PresenceHeartbeat />
+      {children}
+    </>
+  );
 }

@@ -223,6 +223,14 @@ A few backend gaps worth knowing about:
   (`components/ui/status-badge.tsx`'s `backendPullRequestStatus()`)
   rather than inventing new ones.
 
+**Presence heartbeat:** `presence.online/recently_active/offline` is
+derived entirely from each user's last `POST /presence/heartbeat/` call —
+nothing marks a user online just because they're authenticated.
+`components/presence/presence-heartbeat.tsx` sends one on mount and every
+60 seconds after (half the backend's 2-minute online threshold), mounted
+once inside `ProtectedRoute` so it runs for the whole signed-in session
+without restarting on every in-app navigation.
+
 ## Standups
 
 Backed by the full `apps.standups` CRUD API: `POST /standups/` (create),

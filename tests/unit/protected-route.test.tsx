@@ -16,6 +16,10 @@ vi.mock("@/hooks/use-auth", () => ({
   useAuth: () => authState,
 }));
 
+vi.mock("@/lib/api/presence", () => ({
+  sendHeartbeat: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("ProtectedRoute", () => {
   beforeEach(() => {
     vi.clearAllMocks();
