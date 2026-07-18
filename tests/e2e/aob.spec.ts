@@ -23,10 +23,7 @@ test("posting an AOB item with a link persists and shows on reload", async ({
 
   await page.reload();
   await expect(page.getByText(marker)).toBeVisible();
-  const card = page
-    .locator(".rounded-xl")
-    .filter({ hasText: marker })
-    .first();
+  const card = page.locator(".rounded-xl").filter({ hasText: marker }).first();
   await expect(card.getByRole("link", { name: /Learn more/ })).toHaveAttribute(
     "href",
     "https://example.com/notes",

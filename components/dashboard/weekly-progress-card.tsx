@@ -1,4 +1,9 @@
 import { DashboardWidgetCard } from "@/components/dashboard/dashboard-widget-card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { DashboardStandupSummary } from "@/types/dashboard";
 
 export interface WeeklyProgressCardProps {
@@ -38,22 +43,28 @@ export function WeeklyProgressCard({ summary }: WeeklyProgressCardProps) {
       </div>
       <div className="flex flex-wrap gap-1.5">
         {summary.usersWhoSubmitted.map((user) => (
-          <div
-            key={user.id}
-            title={user.displayName}
-            className="bg-muted text-text-icon border-primary flex size-[26px] items-center justify-center rounded-full border-2 text-[10px] font-bold"
-          >
-            {user.initials}
-          </div>
+          <Tooltip key={user.id}>
+            <TooltipTrigger
+              render={
+                <div className="bg-muted text-text-icon border-primary flex size-[26px] cursor-pointer items-center justify-center rounded-full border-2 text-[10px] font-bold" />
+              }
+            >
+              {user.initials}
+            </TooltipTrigger>
+            <TooltipContent>{user.displayName}</TooltipContent>
+          </Tooltip>
         ))}
         {summary.usersWhoHaveNotSubmitted.map((user) => (
-          <div
-            key={user.id}
-            title={user.displayName}
-            className="bg-muted text-text-icon border-border flex size-[26px] items-center justify-center rounded-full border-2 text-[10px] font-bold"
-          >
-            {user.initials}
-          </div>
+          <Tooltip key={user.id}>
+            <TooltipTrigger
+              render={
+                <div className="bg-muted text-text-icon border-border flex size-[26px] cursor-pointer items-center justify-center rounded-full border-2 text-[10px] font-bold" />
+              }
+            >
+              {user.initials}
+            </TooltipTrigger>
+            <TooltipContent>{user.displayName}</TooltipContent>
+          </Tooltip>
         ))}
       </div>
     </DashboardWidgetCard>

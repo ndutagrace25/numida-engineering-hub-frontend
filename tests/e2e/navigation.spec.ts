@@ -57,6 +57,21 @@ test("the dashboard's Weekly Standups widget links to the team weekly view", asy
   ).toBeVisible();
 });
 
+test("hovering a Weekly Standups avatar shows the engineer's full name", async ({
+  page,
+}) => {
+  await page.goto("/dashboard");
+
+  const avatar = page
+    .locator('[data-slot="tooltip-trigger"]', { hasText: "GN" })
+    .first();
+  await avatar.hover();
+
+  await expect(page.locator('[data-slot="tooltip-content"]')).toHaveText(
+    "Grace Nduta",
+  );
+});
+
 test("mobile viewport shows the menu trigger and opens the navigation drawer", async ({
   page,
 }) => {
