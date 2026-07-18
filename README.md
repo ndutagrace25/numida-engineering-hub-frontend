@@ -4,11 +4,10 @@ Frontend foundation for the Numida Engineering Hub: standups, presence, AOB,
 PTO, and pull-request links, backed by the
 [Numida Engineering Hub backend](../numida_engineering_hub_backend).
 
-**Status:** authentication, the Dashboard, Standups, PTO, and AOB are
-connected to the real Django backend (see [Authentication](#authentication),
-[Standups](#standups), [PTO](#pto), and [AOB](#aob) below). Pull Requests
-still runs on local fixture data in `lib/fixtures/` and is connected to the
-backend in a later task.
+**Status:** every module — Authentication, the Dashboard, Standups, PTO,
+AOB, and Pull Requests — is connected to the real Django backend (see
+[Authentication](#authentication), [Standups](#standups), [PTO](#pto),
+[AOB](#aob), and [Pull Requests](#pull-requests) below).
 
 ## Tech stack
 
@@ -41,9 +40,8 @@ components/
   layout/                 App shell: sidebar, top bar, mobile nav, user menu
   auth/                   AuthCard, LoginForm, LoginView, ProtectedRoute
   dashboard/  standups/  presence/  aob/  pto/  pull-requests/
-                          Module-specific components — pull-requests/ is
-                          still backed by mock data (see lib/fixtures/),
-                          the rest by the real backend (see lib/api/)
+                          Module-specific components, all backed by the
+                          real backend (see lib/api/)
 
 hooks/
   use-auth.ts              useAuth() — reads the AuthContext set up by
@@ -106,10 +104,9 @@ cp .env.example .env
 
 ## Authentication
 
-Authentication is real — backed by the Django backend's session auth, not
-mock data. See the Dashboard, Standups, PTO, and AOB sections below for
-each of those modules' own backend connection; Pull Requests is the one
-module still running on `lib/fixtures/`.
+Authentication is real — backed by the Django backend's session auth. See
+the Dashboard, Standups, PTO, AOB, and Pull Requests sections below for
+each of those modules' own backend connection details.
 
 ### Backend endpoints used
 
@@ -326,6 +323,44 @@ are scoped to just the current week; `components/dashboard/dashboard-view.tsx`
 instead fetches its own `page_size=3` page directly from `/aob-items/` (already
 ordered newest-first) and only shows the "View more" link when the
 response's total `count` exceeds 3.
+
+## Pull Requests
+
+Backed by `apps.pull_requests`'s CRUD API, mounted at
+`/pull-request-links/` (not `/pull-requests/`): `GET /pull-request-links/`
+(newest week first, then `group_name`, then `position` ascending) and
+`POST /pull-request-links/`. `lib/api/pull-requests.ts` wraps both;
+`created_by` is set server-side from the session, same permission model
+as AOB and PTO (only the creator may later edit/delete a link, though
+this app doesn't expose edit/delete yet).
+
+**No PR "number" field.** The design's mock data numbered each PR
+(`#482`); the real `PullRequestLink` model has none — it only stores a
+`url`, so each row now links out to that URL directly instead of showing
+a number, and the status enum differs the same way it already does on
+the dashboard (`OPEN`/`IN_REVIEW`/`CHANGES_REQUESTED`/`APPROVED`/`BLOCKED`,
+not `Open`/`In review`/`Changes requested`/`Merged`/`Draft`).
+
+**"Repo" is really `group_name`.** The design grouped PRs under a repo
+name (`numida-core`, `mobile-app`); the backend has no `repo` field, only
+a free-text `group_name` serving the same grouping purpose, so
+`app/(app)/pull-requests/page.tsx` groups the flat API response by that
+field client-side instead of relying on a fixed list of repos.
+
+**`week_start`/`position` are computed, not asked for** — same reasoning
+as AOB: the "New PR link" form doesn't ask for either. `week_start`
+defaults to the current week's Monday; `position` is computed as one past
+the highest position already shared this week under the same
+`group_name` (or `1` if none), since ordering is scoped to a
+week+group_name pair, not just a week.
+
+**Dashboard's "Outstanding Pull Requests" widget is still week-scoped.**
+Unlike AOB and PTO's widgets above, this one hasn't been changed to show
+a broader "latest" set — it still reads directly off the `/dashboard/`
+aggregate's `pull_request_links` (this week only) and takes the first 3
+client-side, same as before this module was connected. Worth revisiting
+for consistency with AOB/PTO if "Outstanding" is meant to mean "still
+open" rather than "shared this week."
 
 ## Running locally
 

@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { DashboardPullRequestStatus } from "@/types/dashboard";
-import type { PullRequestStatus } from "@/types/pull-requests";
+import type { PullRequestLinkStatus } from "@/types/pull-requests";
 
 export type StatusBadgeTone =
   "open" | "in-review" | "changes-requested" | "merged" | "draft";
@@ -15,20 +14,6 @@ const TONE_CLASS: Record<StatusBadgeTone, string> = {
   draft: "bg-status-draft-bg text-status-draft-fg",
 };
 
-const PR_STATUS_TONE: Record<PullRequestStatus, StatusBadgeTone> = {
-  Open: "open",
-  "In review": "in-review",
-  "Changes requested": "changes-requested",
-  Merged: "merged",
-  Draft: "draft",
-};
-
-export function pullRequestStatusTone(
-  status: PullRequestStatus,
-): StatusBadgeTone {
-  return PR_STATUS_TONE[status];
-}
-
 /**
  * The real backend's PullRequestLink.Status enum has no "Merged"/"Draft"
  * (never appeared in the design) but does have "Approved"/"Blocked" (no
@@ -37,7 +22,7 @@ export function pullRequestStatusTone(
  * "merged" tone, Blocked reuses the attention-needed "changes-requested" one.
  */
 const BACKEND_PR_STATUS: Record<
-  DashboardPullRequestStatus,
+  PullRequestLinkStatus,
   { label: string; tone: StatusBadgeTone }
 > = {
   OPEN: { label: "Open", tone: "open" },
@@ -47,7 +32,7 @@ const BACKEND_PR_STATUS: Record<
   BLOCKED: { label: "Blocked", tone: "changes-requested" },
 };
 
-export function backendPullRequestStatus(status: DashboardPullRequestStatus) {
+export function backendPullRequestStatus(status: PullRequestLinkStatus) {
   return BACKEND_PR_STATUS[status];
 }
 
@@ -57,7 +42,7 @@ export interface StatusBadgeProps {
   className?: string;
 }
 
-/** The small pill-shaped status label used for PR statuses, PTO status, and AOB tags. */
+/** The small pill-shaped status label used for PR statuses and PTO status. */
 export function StatusBadge({ tone, children, className }: StatusBadgeProps) {
   return (
     <Badge

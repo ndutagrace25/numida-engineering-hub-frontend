@@ -3,10 +3,10 @@ import {
   StatusBadge,
   backendPullRequestStatus,
 } from "@/components/ui/status-badge";
-import type { DashboardPullRequestLink } from "@/types/dashboard";
+import type { PullRequestLink } from "@/types/pull-requests";
 
 export interface PRPreviewCardProps {
-  links: DashboardPullRequestLink[];
+  links: PullRequestLink[];
 }
 
 /** The dashboard's "Outstanding Pull Requests" preview: first 3 PR links for the week. */

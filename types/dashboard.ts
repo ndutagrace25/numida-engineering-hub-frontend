@@ -1,4 +1,5 @@
 import type { AOBItem } from "@/types/aob";
+import type { PullRequestLink } from "@/types/pull-requests";
 import type { Standup } from "@/types/standups";
 import type { PTOEntry } from "@/types/pto";
 import type { UserRef } from "@/types/user-ref";
@@ -41,21 +42,11 @@ export type DashboardAOBItem = AOBItem;
 /** @deprecated import PTOEntry from "@/types/pto" directly. */
 export type DashboardPTOEntry = PTOEntry;
 
-/** Differs from the mock fixture's status strings — no Merged/Draft, has Approved/Blocked instead. */
-export type DashboardPullRequestStatus =
-  "OPEN" | "IN_REVIEW" | "CHANGES_REQUESTED" | "APPROVED" | "BLOCKED";
+/** @deprecated import PullRequestLinkStatus from "@/types/pull-requests" directly. */
+export type DashboardPullRequestStatus = PullRequestLink["status"];
 
-/** No PR "number" field — link out via `url` instead. */
-export interface DashboardPullRequestLink {
-  id: number;
-  title: string;
-  url: string;
-  groupName: string;
-  status: DashboardPullRequestStatus;
-  weekStart: string;
-  position: number;
-  createdBy: DashboardUserRef | null;
-}
+/** @deprecated import PullRequestLink from "@/types/pull-requests" directly. */
+export type DashboardPullRequestLink = PullRequestLink;
 
 export interface Dashboard {
   weekStart: string;

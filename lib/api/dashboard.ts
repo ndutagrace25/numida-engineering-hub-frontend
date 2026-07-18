@@ -1,6 +1,10 @@
 import { toAOBItem, type AOBItemDto } from "@/lib/api/aob";
 import { apiClient } from "@/lib/api/client";
 import { toPTOEntry, type PTOEntryDto } from "@/lib/api/pto";
+import {
+  toPullRequestLink,
+  type PullRequestLinkDto,
+} from "@/lib/api/pull-requests";
 import { toStandup, type StandupDto } from "@/lib/api/standups";
 import { toUserRef, type UserRefDto } from "@/lib/api/user-ref";
 import type { ApiSuccessResponse } from "@/types/api";
@@ -8,7 +12,6 @@ import type {
   Dashboard,
   DashboardPresence,
   DashboardPresenceEntry,
-  DashboardPullRequestLink,
   DashboardStandupSummary,
 } from "@/types/dashboard";
 
@@ -29,17 +32,6 @@ interface PresenceDto {
   online: PresenceEntryDto[];
   recently_active: PresenceEntryDto[];
   offline: PresenceEntryDto[];
-}
-
-interface PullRequestLinkDto {
-  id: number;
-  title: string;
-  url: string;
-  group_name: string;
-  status: DashboardPullRequestLink["status"];
-  week_start: string;
-  position: number;
-  created_by: UserRefDto | null;
 }
 
 interface DashboardDto {
@@ -71,19 +63,6 @@ function toPresence(dto: PresenceDto): DashboardPresence {
     online: dto.online.map(toPresenceEntry),
     recentlyActive: dto.recently_active.map(toPresenceEntry),
     offline: dto.offline.map(toPresenceEntry),
-  };
-}
-
-function toPullRequestLink(dto: PullRequestLinkDto): DashboardPullRequestLink {
-  return {
-    id: dto.id,
-    title: dto.title,
-    url: dto.url,
-    groupName: dto.group_name,
-    status: dto.status,
-    weekStart: dto.week_start,
-    position: dto.position,
-    createdBy: dto.created_by ? toUserRef(dto.created_by) : null,
   };
 }
 

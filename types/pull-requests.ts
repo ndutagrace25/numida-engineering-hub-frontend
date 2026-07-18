@@ -1,15 +1,18 @@
-export type PullRequestStatus =
-  "Open" | "In review" | "Changes requested" | "Merged" | "Draft";
+import type { UserRef } from "@/types/user-ref";
 
-export interface PullRequestItem {
-  number: number;
+/** Differs from the design's mock statuses — no Merged/Draft, has Approved/Blocked instead. */
+export type PullRequestLinkStatus =
+  "OPEN" | "IN_REVIEW" | "CHANGES_REQUESTED" | "APPROVED" | "BLOCKED";
+
+/** No PR "number" field — link out via `url` instead. */
+export interface PullRequestLink {
+  id: number;
   title: string;
-  author: string;
-  status: PullRequestStatus;
-  updated: string;
-}
-
-export interface PullRequestGroup {
-  repo: string;
-  prs: PullRequestItem[];
+  url: string;
+  groupName: string;
+  status: PullRequestLinkStatus;
+  weekStart: string;
+  position: number;
+  createdBy: UserRef | null;
+  createdAt: string;
 }
