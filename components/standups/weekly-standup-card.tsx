@@ -6,12 +6,19 @@ function Column({ label, items }: { label: string; items: string[] }) {
   if (items.length === 0) return null;
   return (
     <div>
-      <div className="text-muted-foreground mb-1.5 text-[11.5px] font-bold tracking-[0.3px] uppercase">
+      <div className="text-primary mb-1.5 text-[11.5px] font-bold tracking-[0.3px] uppercase">
         {label}
       </div>
       {items.map((t, i) => (
-        <div key={i} className="text-text-body py-0.5 text-[13px]">
-          — {t}
+        <div
+          key={i}
+          className="text-text-body flex items-start gap-2 py-0.5 text-[13px]"
+        >
+          <span
+            aria-hidden="true"
+            className="bg-primary mt-[7px] size-[5px] shrink-0 rounded-full"
+          />
+          <span className="flex-1">{t}</span>
         </div>
       ))}
     </div>
@@ -53,8 +60,15 @@ export function WeeklyStandupCard({ row }: WeeklyStandupCardProps) {
             Blockers
           </div>
           {row.blockers.map((t, i) => (
-            <div key={i} className="text-destructive text-[13px]">
-              — {t}
+            <div
+              key={i}
+              className="text-destructive flex items-start gap-2 text-[13px]"
+            >
+              <span
+                aria-hidden="true"
+                className="mt-[7px] size-[5px] shrink-0 rounded-full bg-[#D6685E]"
+              />
+              <span className="flex-1">{t}</span>
             </div>
           ))}
         </div>

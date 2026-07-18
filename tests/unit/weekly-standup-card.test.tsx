@@ -22,12 +22,10 @@ describe("WeeklyStandupCard", () => {
     expect(screen.getByText("Aisha Nakato")).toBeInTheDocument();
     expect(screen.getByText("Backend Engineer")).toBeInTheDocument();
     expect(
-      screen.getByText("— Shipped the recalculation service"),
+      screen.getByText("Shipped the recalculation service"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("— Migrating the feature store"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("— Write the RFC")).toBeInTheDocument();
+    expect(screen.getByText("Migrating the feature store")).toBeInTheDocument();
+    expect(screen.getByText("Write the RFC")).toBeInTheDocument();
   });
 
   it("omits empty sections (e.g. Meetings) instead of rendering an empty heading", () => {
@@ -46,7 +44,7 @@ describe("WeeklyStandupCard", () => {
       />,
     );
     expect(screen.getByText("Blockers")).toBeInTheDocument();
-    expect(screen.getByText("— Waiting on infra")).toBeInTheDocument();
+    expect(screen.getByText("Waiting on infra")).toBeInTheDocument();
   });
 
   it("omits the role line entirely when role is empty (the backend has no role field)", () => {
