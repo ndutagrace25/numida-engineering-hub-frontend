@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { RequestPTODialog } from "@/components/pto/request-pto-dialog";
+import { AddPTODialog } from "@/components/pto/add-pto-dialog";
 
 vi.mock("@/hooks/use-auth", () => ({
   useAuth: () => ({
@@ -26,20 +26,20 @@ function axiosLikeError(status: number, fields: Record<string, string[]>) {
   });
 }
 
-describe("RequestPTODialog", () => {
+describe("AddPTODialog", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("is closed by default", () => {
-    render(<RequestPTODialog onCreate={vi.fn()} />);
+    render(<AddPTODialog onCreate={vi.fn()} />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("opens on trigger click and addresses the request to the signed-in user", async () => {
+  it("opens on trigger click and addresses the entry to the signed-in user", async () => {
     const user = userEvent.setup();
-    render(<RequestPTODialog onCreate={vi.fn()} />);
+    render(<AddPTODialog onCreate={vi.fn()} />);
 
-    await user.click(screen.getByRole("button", { name: "Request PTO" }));
+    await user.click(screen.getByRole("button", { name: "Add PTO" }));
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText(/Grace Nduta/)).toBeInTheDocument();
@@ -48,14 +48,14 @@ describe("RequestPTODialog", () => {
   it("rejects an end date before the start date", async () => {
     const user = userEvent.setup();
     const onCreate = vi.fn();
-    render(<RequestPTODialog onCreate={onCreate} />);
+    render(<AddPTODialog onCreate={onCreate} />);
 
-    await user.click(screen.getByRole("button", { name: "Request PTO" }));
+    await user.click(screen.getByRole("button", { name: "Add PTO" }));
     await screen.findByRole("dialog");
 
     await user.type(screen.getByLabelText("Start date"), "2026-08-10");
     await user.type(screen.getByLabelText("End date"), "2026-08-01");
-    await user.click(screen.getByRole("button", { name: "Submit request" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
 
     expect(
       await screen.findByText("End date can't be before the start date"),
@@ -66,9 +66,9 @@ describe("RequestPTODialog", () => {
   it("submits with reason and handoverUrl, then closes the dialog", async () => {
     const user = userEvent.setup();
     const onCreate = vi.fn().mockResolvedValue(undefined);
-    render(<RequestPTODialog onCreate={onCreate} />);
+    render(<AddPTODialog onCreate={onCreate} />);
 
-    await user.click(screen.getByRole("button", { name: "Request PTO" }));
+    await user.click(screen.getByRole("button", { name: "Add PTO" }));
     await screen.findByRole("dialog");
 
     await user.type(screen.getByLabelText("Start date"), "2026-08-10");
@@ -78,7 +78,7 @@ describe("RequestPTODialog", () => {
       screen.getByLabelText("Handover notes URL (optional)"),
       "https://example.com/notes",
     );
-    await user.click(screen.getByRole("button", { name: "Submit request" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
 
     expect(onCreate).toHaveBeenCalledWith({
       startDate: "2026-08-10",
@@ -92,9 +92,9 @@ describe("RequestPTODialog", () => {
   it("rejects a handover URL that isn't HTTPS", async () => {
     const user = userEvent.setup();
     const onCreate = vi.fn();
-    render(<RequestPTODialog onCreate={onCreate} />);
+    render(<AddPTODialog onCreate={onCreate} />);
 
-    await user.click(screen.getByRole("button", { name: "Request PTO" }));
+    await user.click(screen.getByRole("button", { name: "Add PTO" }));
     await screen.findByRole("dialog");
 
     await user.type(screen.getByLabelText("Start date"), "2026-08-10");
@@ -103,7 +103,7 @@ describe("RequestPTODialog", () => {
       screen.getByLabelText("Handover notes URL (optional)"),
       "http://example.com/notes",
     );
-    await user.click(screen.getByRole("button", { name: "Submit request" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
 
     expect(await screen.findByText("Must be an HTTPS URL")).toBeInTheDocument();
     expect(onCreate).not.toHaveBeenCalled();
@@ -116,14 +116,14 @@ describe("RequestPTODialog", () => {
         end_date: ["End date cannot be earlier than start date."],
       }),
     );
-    render(<RequestPTODialog onCreate={onCreate} />);
+    render(<AddPTODialog onCreate={onCreate} />);
 
-    await user.click(screen.getByRole("button", { name: "Request PTO" }));
+    await user.click(screen.getByRole("button", { name: "Add PTO" }));
     await screen.findByRole("dialog");
 
     await user.type(screen.getByLabelText("Start date"), "2026-08-10");
     await user.type(screen.getByLabelText("End date"), "2026-08-12");
-    await user.click(screen.getByRole("button", { name: "Submit request" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
 
     expect(
       await screen.findByText("End date cannot be earlier than start date."),
@@ -135,9 +135,9 @@ describe("RequestPTODialog", () => {
   it("closes without calling onCreate when Cancel is clicked", async () => {
     const user = userEvent.setup();
     const onCreate = vi.fn();
-    render(<RequestPTODialog onCreate={onCreate} />);
+    render(<AddPTODialog onCreate={onCreate} />);
 
-    await user.click(screen.getByRole("button", { name: "Request PTO" }));
+    await user.click(screen.getByRole("button", { name: "Add PTO" }));
     await screen.findByRole("dialog");
     await user.click(screen.getByRole("button", { name: "Cancel" }));
 

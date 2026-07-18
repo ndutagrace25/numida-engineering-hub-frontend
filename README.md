@@ -279,7 +279,7 @@ each row — the backend has no status field of its own.
 **"Handover" isn't a person.** The design's mock data modeled handover as
 picking a specific teammate (`handoverTo: "Ethan Mensah"`), but the real
 `PTOEntry` model has no such field — only an optional `handover_url` (a
-link to handover notes/docs). The "Request PTO" dialog collects a
+link to handover notes/docs). The "Add PTO" dialog collects a
 `handoverUrl` instead of a person picker, and each row links out to it
 ("notes ↗") only when one was provided.
 

@@ -3,11 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { AppShell } from "@/components/layout/app-shell";
-import { PTOEntryRow } from "@/components/pto/pto-entry-row";
 import {
-  RequestPTODialog,
-  type RequestPtoValues,
-} from "@/components/pto/request-pto-dialog";
+  AddPTODialog,
+  type AddPtoValues,
+} from "@/components/pto/add-pto-dialog";
+import { PTOEntryRow } from "@/components/pto/pto-entry-row";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
@@ -41,7 +41,7 @@ export default function PTOPage() {
   );
 
   const createMutation = useMutation({
-    mutationFn: (values: RequestPtoValues) =>
+    mutationFn: (values: AddPtoValues) =>
       createPTOEntry({
         user: user!.id,
         startDate: values.startDate,
@@ -60,7 +60,7 @@ export default function PTOPage() {
       <div className="max-w-[900px] p-6 sm:p-8">
         <div className="mb-5 flex items-center justify-between">
           <div className="text-xl font-bold">PTO</div>
-          <RequestPTODialog
+          <AddPTODialog
             onCreate={(values) => createMutation.mutateAsync(values)}
           />
         </div>

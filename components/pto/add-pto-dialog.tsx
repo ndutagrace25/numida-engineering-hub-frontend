@@ -23,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
 import { getApiError, getErrorMessage } from "@/lib/api/errors";
 
-const requestPtoSchema = z
+const addPtoSchema = z
   .object({
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
@@ -37,7 +37,7 @@ const requestPtoSchema = z
     path: ["endDate"],
   });
 
-export type RequestPtoValues = z.infer<typeof requestPtoSchema>;
+export type AddPtoValues = z.infer<typeof addPtoSchema>;
 
 const BACKEND_FIELD_TO_FORM_FIELD = {
   start_date: "startDate",
@@ -46,18 +46,19 @@ const BACKEND_FIELD_TO_FORM_FIELD = {
   handover_url: "handoverUrl",
 } as const;
 
-export interface RequestPTODialogProps {
-  onCreate: (values: RequestPtoValues) => Promise<unknown>;
+export interface AddPTODialogProps {
+  onCreate: (values: AddPtoValues) => Promise<unknown>;
 }
 
 /**
- * "Request PTO" dialog. The design's own button was inert (no onClick at
+ * "Add PTO" dialog (not "Request" — there's no approval workflow, this
+ * just logs the entry). The design's own button was inert (no onClick at
  * all); this fills in the natural interaction. Unlike the design's mock
  * data — which modeled "handover" as picking a specific person — the
  * backend only has an optional handover_url (a link to handover notes),
  * so that's what this form collects instead.
  */
-export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
+export function AddPTODialog({ onCreate }: AddPTODialogProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -68,12 +69,12 @@ export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
     setError,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<RequestPtoValues>({
-    resolver: zodResolver(requestPtoSchema),
+  } = useForm<AddPtoValues>({
+    resolver: zodResolver(addPtoSchema),
     defaultValues: { startDate: "", endDate: "", reason: "", handoverUrl: "" },
   });
 
-  async function onSubmit(values: RequestPtoValues) {
+  async function onSubmit(values: AddPtoValues) {
     setFormError(null);
     try {
       await onCreate(values);
@@ -108,10 +109,10 @@ export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
         }
       }}
     >
-      <DialogTrigger render={<Button />}>Request PTO</DialogTrigger>
+      <DialogTrigger render={<Button />}>Add PTO</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Request PTO</DialogTitle>
+          <DialogTitle>Add PTO</DialogTitle>
           <DialogDescription>
             Log time off for {user?.displayName ?? "yourself"}.
           </DialogDescription>
@@ -178,7 +179,7 @@ export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting…" : "Submit request"}
+              {isSubmitting ? "Saving…" : "Save"}
             </Button>
           </DialogFooter>
         </form>
