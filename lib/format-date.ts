@@ -39,3 +39,12 @@ export function formatShortDate(value: string): string {
 export function formatDateRange(startDate: string, endDate: string): string {
   return `${formatShortDate(startDate)} – ${formatShortDate(endDate)}`;
 }
+
+/** Inclusive day count between two YYYY-MM-DD dates (both endpoints count). */
+export function countInclusiveDays(startDate: string, endDate: string): number {
+  const [sy, sm, sd] = startDate.split("-").map(Number);
+  const [ey, em, ed] = endDate.split("-").map(Number);
+  const start = new Date(sy, sm - 1, sd);
+  const end = new Date(ey, em - 1, ed);
+  return Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1;
+}

@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api/client";
+import { toPTOEntry, type PTOEntryDto } from "@/lib/api/pto";
 import { toStandup, type StandupDto } from "@/lib/api/standups";
 import { toUserRef, type UserRefDto } from "@/lib/api/user-ref";
 import type { ApiSuccessResponse } from "@/types/api";
@@ -7,7 +8,6 @@ import type {
   DashboardAOBItem,
   DashboardPresence,
   DashboardPresenceEntry,
-  DashboardPTOEntry,
   DashboardPullRequestLink,
   DashboardStandupSummary,
 } from "@/types/dashboard";
@@ -40,16 +40,6 @@ interface AOBItemDto {
   position: number;
   created_by: UserRefDto | null;
   created_at: string;
-}
-
-interface PTOEntryDto {
-  id: number;
-  user: UserRefDto | null;
-  start_date: string;
-  end_date: string;
-  reason: string;
-  handover_url: string | null;
-  created_by: UserRefDto | null;
 }
 
 interface PullRequestLinkDto {
@@ -105,18 +95,6 @@ function toAOBItem(dto: AOBItemDto): DashboardAOBItem {
     position: dto.position,
     createdBy: dto.created_by ? toUserRef(dto.created_by) : null,
     createdAt: dto.created_at,
-  };
-}
-
-function toPTOEntry(dto: PTOEntryDto): DashboardPTOEntry {
-  return {
-    id: dto.id,
-    user: dto.user ? toUserRef(dto.user) : null,
-    startDate: dto.start_date,
-    endDate: dto.end_date,
-    reason: dto.reason,
-    handoverUrl: dto.handover_url,
-    createdBy: dto.created_by ? toUserRef(dto.created_by) : null,
   };
 }
 

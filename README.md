@@ -4,12 +4,13 @@ Frontend foundation for the Numida Engineering Hub: standups, presence, AOB,
 PTO, and pull-request links, backed by the
 [Numida Engineering Hub backend](../numida_engineering_hub_backend).
 
-**Status:** authentication, the Dashboard, and Standups are connected to
-the real Django backend (see [Authentication](#authentication) and
-[Standups](#standups) below). PTO, AOB, and Pull Requests still run on
-local fixture data in `lib/fixtures/` and are connected to the backend in
-later tasks — the Dashboard's own "Recent Activity" widget stays on
-fixture data too, since the backend has no activity-feed endpoint.
+**Status:** authentication, the Dashboard, Standups, and PTO are connected
+to the real Django backend (see [Authentication](#authentication),
+[Standups](#standups), and [PTO](#pto) below). AOB and Pull Requests still
+run on local fixture data in `lib/fixtures/` and are connected to the
+backend in later tasks — the Dashboard's own "Recent Activity" widget
+stays on fixture data too, since the backend has no activity-feed
+endpoint.
 
 ## Tech stack
 
@@ -266,6 +267,28 @@ found means edit (PATCH), not found means create (POST).
   them, so each option carries a real `date_after`/`date_before` range
   instead. The engineer filter (Team tab) maps to `user=<id>`, with
   options from a lightweight `GET /users/` fetch.
+
+## PTO
+
+Backed by `apps.pto`'s CRUD API: `GET /pto/` (filterable by
+`user`/`created_by`/`date_after`/`date_before`/`active_on`, plus free-text
+`search`) and `POST /pto/`. `lib/api/pto.ts` wraps both;
+`lib/pto-status.ts` derives the Upcoming/Active/Completed badge shown on
+each row — the backend has no status field of its own.
+
+**"Handover" isn't a person.** The design's mock data modeled handover as
+picking a specific teammate (`handoverTo: "Ethan Mensah"`), but the real
+`PTOEntry` model has no such field — only an optional `handover_url` (a
+link to handover notes/docs). The "Request PTO" dialog collects a
+`handoverUrl` instead of a person picker, and each row links out to it
+("notes ↗") only when one was provided.
+
+The list only shows entries that haven't ended yet (Upcoming or Active),
+matching the design's "Upcoming PTO" framing. There's no single query
+param for "hasn't ended" — `date_after` only filters on `start_date` — so
+this fetches from 30 days back (safely catching any currently-active
+entry that started before today) and drops anything whose `end_date` has
+already passed client-side.
 
 ## Running locally
 

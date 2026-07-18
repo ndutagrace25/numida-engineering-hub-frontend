@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { DateRangeField } from "@/components/ui/date-range-field";
 import {
@@ -16,23 +17,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { CURRENT_USER, ENGINEERS } from "@/lib/fixtures/engineers";
-
-const HANDOVER_OPTIONS = ENGINEERS.filter((e) => e.name !== CURRENT_USER.name);
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/hooks/use-auth";
+import { getApiError, getErrorMessage } from "@/lib/api/errors";
 
 const requestPtoSchema = z
   .object({
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
-    handoverTo: z.string().min(1, "Choose a handover"),
+    reason: z.string(),
+    handoverUrl: z.string().refine((v) => !v || /^https:\/\/.+/.test(v), {
+      message: "Must be an HTTPS URL",
+    }),
   })
   .refine((data) => data.endDate >= data.startDate, {
     message: "End date can't be before the start date",
@@ -41,35 +39,62 @@ const requestPtoSchema = z
 
 export type RequestPtoValues = z.infer<typeof requestPtoSchema>;
 
+const BACKEND_FIELD_TO_FORM_FIELD = {
+  start_date: "startDate",
+  end_date: "endDate",
+  reason: "reason",
+  handover_url: "handoverUrl",
+} as const;
+
 export interface RequestPTODialogProps {
-  onCreate: (values: RequestPtoValues) => void;
+  onCreate: (values: RequestPtoValues) => Promise<unknown>;
 }
 
 /**
- * "Request PTO" dialog. The design's prototype leaves this button inert;
- * this fills in the natural interaction with a form built from the same
- * design tokens. Local state only — nothing is submitted to a backend.
+ * "Request PTO" dialog. The design's own button was inert (no onClick at
+ * all); this fills in the natural interaction. Unlike the design's mock
+ * data — which modeled "handover" as picking a specific person — the
+ * backend only has an optional handover_url (a link to handover notes),
+ * so that's what this form collects instead.
  */
 export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const {
     control,
+    register,
     handleSubmit,
+    setError,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RequestPtoValues>({
     resolver: zodResolver(requestPtoSchema),
-    defaultValues: {
-      startDate: "",
-      endDate: "",
-      handoverTo: HANDOVER_OPTIONS[0]?.name ?? "",
-    },
+    defaultValues: { startDate: "", endDate: "", reason: "", handoverUrl: "" },
   });
 
-  function onSubmit(values: RequestPtoValues) {
-    onCreate(values);
-    reset();
-    setOpen(false);
+  async function onSubmit(values: RequestPtoValues) {
+    setFormError(null);
+    try {
+      await onCreate(values);
+      reset();
+      setOpen(false);
+    } catch (error) {
+      const apiError = getApiError(error);
+      let mappedToField = false;
+      for (const [backendField, formField] of Object.entries(
+        BACKEND_FIELD_TO_FORM_FIELD,
+      )) {
+        const message = apiError.fields[backendField]?.[0];
+        if (message) {
+          setError(formField, { message });
+          mappedToField = true;
+        }
+      }
+      if (!mappedToField) {
+        setFormError(getErrorMessage(error));
+      }
+    }
   }
 
   return (
@@ -77,7 +102,10 @@ export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) reset();
+        if (!next) {
+          reset();
+          setFormError(null);
+        }
       }}
     >
       <DialogTrigger render={<Button />}>Request PTO</DialogTrigger>
@@ -85,10 +113,12 @@ export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
         <DialogHeader>
           <DialogTitle>Request PTO</DialogTitle>
           <DialogDescription>
-            Log time off for {CURRENT_USER.name} and choose who covers for you.
+            Log time off for {user?.displayName ?? "yourself"}.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          {formError && <Alert tone="error">{formError}</Alert>}
+
           <Controller
             control={control}
             name="startDate"
@@ -117,28 +147,24 @@ export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
           />
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="pto-handover">Handover to</Label>
-            <Controller
-              control={control}
-              name="handoverTo"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger id="pto-handover">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {HANDOVER_OPTIONS.map((e) => (
-                      <SelectItem key={e.name} value={e.name}>
-                        {e.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+            <Label htmlFor="pto-reason">Reason (optional)</Label>
+            <Textarea id="pto-reason" {...register("reason")} />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="pto-handover-url">
+              Handover notes URL (optional)
+            </Label>
+            <Input
+              id="pto-handover-url"
+              type="url"
+              placeholder="https://…"
+              aria-invalid={!!errors.handoverUrl}
+              {...register("handoverUrl")}
             />
-            {errors.handoverTo && (
+            {errors.handoverUrl && (
               <p className="text-destructive text-xs">
-                {errors.handoverTo.message}
+                {errors.handoverUrl.message}
               </p>
             )}
           </div>
@@ -151,7 +177,9 @@ export function RequestPTODialog({ onCreate }: RequestPTODialogProps) {
             >
               Cancel
             </Button>
-            <Button type="submit">Submit request</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Submitting…" : "Submit request"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,4 +1,5 @@
 import type { Standup } from "@/types/standups";
+import type { PTOEntry } from "@/types/pto";
 import type { UserRef } from "@/types/user-ref";
 
 /**
@@ -45,15 +46,8 @@ export interface DashboardAOBItem {
   createdAt: string;
 }
 
-export interface DashboardPTOEntry {
-  id: number;
-  user: UserRef | null;
-  startDate: string;
-  endDate: string;
-  reason: string;
-  handoverUrl: string | null;
-  createdBy: UserRef | null;
-}
+/** @deprecated import PTOEntry from "@/types/pto" directly. */
+export type DashboardPTOEntry = PTOEntry;
 
 /** Differs from the mock fixture's status strings — no Merged/Draft, has Approved/Blocked instead. */
 export type DashboardPullRequestStatus =
