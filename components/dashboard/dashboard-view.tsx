@@ -33,11 +33,18 @@ const weekStart = formatDateParam(getMondayOf(new Date()));
  * backend has no activity-feed endpoint, so it stays on fixture data
  * (see the README/report).
  */
+// Polls so presence, standup submissions, and other teammates' activity
+// show up without a manual refresh — half the presence heartbeat's own
+// interval (see components/presence/presence-heartbeat.tsx), so a status
+// change (e.g. someone logging out) is reflected reasonably quickly.
+const DASHBOARD_REFETCH_INTERVAL_MS = 30_000;
+
 export function DashboardView() {
   const { user } = useAuth();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["dashboard", weekStart],
     queryFn: () => fetchDashboard(weekStart),
+    refetchInterval: DASHBOARD_REFETCH_INTERVAL_MS,
   });
 
   return (
