@@ -1,3 +1,4 @@
+import type { AOBItem } from "@/types/aob";
 import type { Standup } from "@/types/standups";
 import type { PTOEntry } from "@/types/pto";
 import type { UserRef } from "@/types/user-ref";
@@ -34,17 +35,8 @@ export interface DashboardPresence {
   offline: DashboardPresenceEntry[];
 }
 
-/** No "tag"/category field exists on the backend's AOBItem model. */
-export interface DashboardAOBItem {
-  id: number;
-  title: string;
-  description: string;
-  externalUrl: string | null;
-  weekStart: string;
-  position: number;
-  createdBy: UserRef | null;
-  createdAt: string;
-}
+/** @deprecated import AOBItem from "@/types/aob" directly. */
+export type DashboardAOBItem = AOBItem;
 
 /** @deprecated import PTOEntry from "@/types/pto" directly. */
 export type DashboardPTOEntry = PTOEntry;

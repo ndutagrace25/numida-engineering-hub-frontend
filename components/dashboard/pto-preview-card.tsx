@@ -10,9 +10,7 @@ export function PTOPreviewCard({ entries }: PTOPreviewCardProps) {
   return (
     <DashboardWidgetCard title="Upcoming PTO" viewAllHref="/pto">
       {entries.length === 0 ? (
-        <p className="text-muted-foreground text-[13px]">
-          No upcoming PTO for this week.
-        </p>
+        <p className="text-muted-foreground text-[13px]">No upcoming PTO.</p>
       ) : (
         <div className="flex flex-col gap-2.5">
           {entries.map((entry) => (

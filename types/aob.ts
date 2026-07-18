@@ -1,9 +1,13 @@
-export interface AOBPost {
-  id: string;
-  author: string;
-  initials: string;
-  date: string;
-  tag: string;
+import type { UserRef } from "@/types/user-ref";
+
+/** No "tag"/category field exists on the backend's AOBItem model. */
+export interface AOBItem {
+  id: number;
   title: string;
-  body: string;
+  description: string;
+  externalUrl: string | null;
+  weekStart: string;
+  position: number;
+  createdBy: UserRef | null;
+  createdAt: string;
 }

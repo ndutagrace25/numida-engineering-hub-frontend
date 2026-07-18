@@ -3,12 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DashboardView } from "@/components/dashboard/dashboard-view";
+import * as aobApi from "@/lib/api/aob";
 import * as dashboardApi from "@/lib/api/dashboard";
 import * as ptoApi from "@/lib/api/pto";
 import type { Dashboard } from "@/types/dashboard";
 
 vi.mock("@/lib/api/dashboard");
 vi.mock("@/lib/api/pto");
+vi.mock("@/lib/api/aob");
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
@@ -63,6 +65,7 @@ describe("DashboardView", () => {
   it("shows the submission banner's counts once the dashboard loads", async () => {
     vi.mocked(dashboardApi.fetchDashboard).mockResolvedValue(emptyDashboard);
     vi.mocked(ptoApi.fetchUpcomingPTOEntries).mockResolvedValue([]);
+    vi.mocked(aobApi.fetchAOBItems).mockResolvedValue({ items: [], count: 0 });
 
     renderWithQueryClient();
 
@@ -76,6 +79,7 @@ describe("DashboardView", () => {
       Object.assign(new Error("network down"), { isAxiosError: true }),
     );
     vi.mocked(ptoApi.fetchUpcomingPTOEntries).mockResolvedValue([]);
+    vi.mocked(aobApi.fetchAOBItems).mockResolvedValue({ items: [], count: 0 });
 
     renderWithQueryClient();
 

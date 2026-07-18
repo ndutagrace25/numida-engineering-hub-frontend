@@ -18,10 +18,13 @@ import {
   SectionCardTitle,
 } from "@/components/ui/section-card";
 import { useAuth } from "@/hooks/use-auth";
+import { fetchAOBItems } from "@/lib/api/aob";
 import { fetchDashboard } from "@/lib/api/dashboard";
 import { getErrorMessage } from "@/lib/api/errors";
 import { fetchUpcomingPTOEntries } from "@/lib/api/pto";
 import { formatDateParam, getMondayOf } from "@/lib/week";
+
+const AOB_PREVIEW_COUNT = 3;
 
 const weekStart = formatDateParam(getMondayOf(new Date()));
 
@@ -50,6 +53,14 @@ export function DashboardView() {
   const ptoQuery = useQuery({
     queryKey: ["pto", "upcoming"],
     queryFn: fetchUpcomingPTOEntries,
+    refetchInterval: DASHBOARD_REFETCH_INTERVAL_MS,
+  });
+  // Same reasoning as PTO above: the aggregate's aob_items are scoped to
+  // just this week, but the "AOB" widget is meant to show the latest
+  // posts regardless of week, so it fetches its own small page directly.
+  const aobQuery = useQuery({
+    queryKey: ["aob", "latest"],
+    queryFn: () => fetchAOBItems({ pageSize: AOB_PREVIEW_COUNT }),
     refetchInterval: DASHBOARD_REFETCH_INTERVAL_MS,
   });
 
@@ -83,7 +94,10 @@ export function DashboardView() {
               </SectionCard>
 
               <WeeklyProgressCard summary={data.standupSummary} />
-              <AOBPreviewCard items={data.aobItems.slice(0, 2)} />
+              <AOBPreviewCard
+                items={aobQuery.data?.items ?? []}
+                hasMore={(aobQuery.data?.count ?? 0) > AOB_PREVIEW_COUNT}
+              />
               <PTOPreviewCard entries={ptoQuery.data ?? []} />
               <PRPreviewCard links={data.pullRequestLinks} />
             </div>

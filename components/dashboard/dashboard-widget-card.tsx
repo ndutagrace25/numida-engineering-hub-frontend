@@ -11,6 +11,8 @@ export interface DashboardWidgetCardProps {
   title: string;
   viewAllHref: string;
   viewAllLabel?: string;
+  /** Hide the header link entirely — e.g. when there's nothing more to view. */
+  showViewAll?: boolean;
   className?: string;
   children: React.ReactNode;
 }
@@ -20,6 +22,7 @@ export function DashboardWidgetCard({
   title,
   viewAllHref,
   viewAllLabel = "All →",
+  showViewAll = true,
   className,
   children,
 }: DashboardWidgetCardProps) {
@@ -27,12 +30,14 @@ export function DashboardWidgetCard({
     <SectionCard className={cn(className)}>
       <SectionCardHeader>
         <SectionCardTitle>{title}</SectionCardTitle>
-        <Link
-          href={viewAllHref}
-          className="focus-visible:ring-ring text-muted-foreground hover:text-foreground rounded text-[12.5px] focus-visible:ring-2 focus-visible:outline-none"
-        >
-          {viewAllLabel}
-        </Link>
+        {showViewAll && (
+          <Link
+            href={viewAllHref}
+            className="focus-visible:ring-ring text-muted-foreground hover:text-foreground rounded text-[12.5px] focus-visible:ring-2 focus-visible:outline-none"
+          >
+            {viewAllLabel}
+          </Link>
+        )}
       </SectionCardHeader>
       {children}
     </SectionCard>

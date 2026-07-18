@@ -1,22 +1,24 @@
 import { DashboardWidgetCard } from "@/components/dashboard/dashboard-widget-card";
 import { formatShortDate } from "@/lib/format-date";
-import type { DashboardAOBItem } from "@/types/dashboard";
+import type { AOBItem } from "@/types/aob";
 
 export interface AOBPreviewCardProps {
-  items: DashboardAOBItem[];
+  /** Already the latest 3 — the caller decides how many to fetch. */
+  items: AOBItem[];
+  /** Whether more items exist beyond the ones shown here. */
+  hasMore: boolean;
 }
 
-export function AOBPreviewCard({ items }: AOBPreviewCardProps) {
+export function AOBPreviewCard({ items, hasMore }: AOBPreviewCardProps) {
   return (
     <DashboardWidgetCard
       title="AOB"
       viewAllHref="/aob"
-      viewAllLabel="All posts →"
+      viewAllLabel="View more →"
+      showViewAll={hasMore}
     >
       {items.length === 0 ? (
-        <p className="text-muted-foreground text-[13px]">
-          Nothing raised for this week yet.
-        </p>
+        <p className="text-muted-foreground text-[13px]">Nothing raised yet.</p>
       ) : (
         <div className="flex flex-col gap-3">
           {items.map((item) => (

@@ -4,11 +4,11 @@ Frontend foundation for the Numida Engineering Hub: standups, presence, AOB,
 PTO, and pull-request links, backed by the
 [Numida Engineering Hub backend](../numida_engineering_hub_backend).
 
-**Status:** authentication, the Dashboard, Standups, and PTO are connected
-to the real Django backend (see [Authentication](#authentication),
-[Standups](#standups), and [PTO](#pto) below). AOB and Pull Requests still
-run on local fixture data in `lib/fixtures/` and are connected to the
-backend in later tasks.
+**Status:** authentication, the Dashboard, Standups, PTO, and AOB are
+connected to the real Django backend (see [Authentication](#authentication),
+[Standups](#standups), [PTO](#pto), and [AOB](#aob) below). Pull Requests
+still runs on local fixture data in `lib/fixtures/` and is connected to the
+backend in a later task.
 
 ## Tech stack
 
@@ -41,8 +41,9 @@ components/
   layout/                 App shell: sidebar, top bar, mobile nav, user menu
   auth/                   AuthCard, LoginForm, LoginView, ProtectedRoute
   dashboard/  standups/  presence/  aob/  pto/  pull-requests/
-                          Module-specific components, still backed by mock
-                          data (see lib/fixtures/)
+                          Module-specific components — pull-requests/ is
+                          still backed by mock data (see lib/fixtures/),
+                          the rest by the real backend (see lib/api/)
 
 hooks/
   use-auth.ts              useAuth() — reads the AuthContext set up by
@@ -106,8 +107,9 @@ cp .env.example .env
 ## Authentication
 
 Authentication is real — backed by the Django backend's session auth, not
-mock data. Every other module (Dashboard, Standups, Presence, PTO, AOB,
-Pull Requests) still runs on `lib/fixtures/` and is unaffected.
+mock data. See the Dashboard, Standups, PTO, and AOB sections below for
+each of those modules' own backend connection; Pull Requests is the one
+module still running on `lib/fixtures/`.
 
 ### Backend endpoints used
 
@@ -295,6 +297,35 @@ param for "hasn't ended" — `date_after` only filters on `start_date` — so
 this fetches from 30 days back (safely catching any currently-active
 entry that started before today) and drops anything whose `end_date` has
 already passed client-side.
+
+## AOB
+
+Backed by `apps.aob`'s CRUD API, mounted at `/aob-items/` (not `/aob/`):
+`GET /aob-items/` (newest week first, then position ascending within a
+week) and `POST /aob-items/`. `lib/api/aob.ts` wraps both;
+`created_by` is set server-side from the session, same as AOB's own
+permission model (only the creator may later edit/delete an item, though
+this app doesn't expose edit/delete yet — same scope as the design).
+
+**No "tag"/category field.** The design's mock data tagged each post
+(Process/Infra/Engineering/Announcement), but the real `AOBItem` model has
+no such field, so the "New post" form and each post card drop it entirely.
+An optional external link (`external_url`, HTTPS-only) is collected
+instead, matching what the backend actually supports.
+
+**`week_start`/`position` are computed, not asked for.** Every `AOBItem`
+belongs to a week (like standups) and has a manual `position` for
+ordering within it — neither is part of the design's "New post" form, so
+`app/(app)/aob/page.tsx` defaults `week_start` to the current week's
+Monday and computes `position` as one past the highest position already
+posted that week (or `1` if none).
+
+**Dashboard's "AOB" widget shows the latest 3 overall, not this week's.**
+Like PTO's widget (above), the `/dashboard/` aggregate's own `aob_items`
+are scoped to just the current week; `components/dashboard/dashboard-view.tsx`
+instead fetches its own `page_size=3` page directly from `/aob-items/` (already
+ordered newest-first) and only shows the "View more" link when the
+response's total `count` exceeds 3.
 
 ## Running locally
 
