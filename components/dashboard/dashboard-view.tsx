@@ -78,7 +78,7 @@ export function DashboardView() {
 
               <WeeklyProgressCard summary={data.standupSummary} />
               <AOBPreviewCard items={data.aobItems.slice(0, 2)} />
-              <PTOPreviewCard entries={data.ptoEntries.slice(0, 2)} />
+              <PTOPreviewCard entries={data.ptoEntries} />
               <PRPreviewCard links={data.pullRequestLinks} />
 
               <RecentActivityCard activity={ACTIVITY} />
