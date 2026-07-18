@@ -229,6 +229,15 @@ nothing marks a user online just because they're authenticated.
 once inside `ProtectedRoute` so it runs for the whole signed-in session
 without restarting on every in-app navigation.
 
+**Upcoming PTO is fetched separately from the aggregate:** the `/dashboard/`
+endpoint's own `pto_entries` are scoped to just the current week (same as
+its AOB/PR fields), but the "Upcoming PTO" widget is meant to show
+everything upcoming regardless of week. `lib/api/pto.ts`'s
+`fetchUpcomingPTOEntries()` (a 30-day lookback plus a client-side "hasn't
+ended yet" filter — there's no single backend query param for that) is
+shared by both the Dashboard and the standalone `/pto` page for this
+reason.
+
 ## Standups
 
 Backed by the full `apps.standups` CRUD API: `POST /standups/` (create),

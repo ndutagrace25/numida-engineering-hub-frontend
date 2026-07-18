@@ -20,6 +20,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { fetchDashboard } from "@/lib/api/dashboard";
 import { getErrorMessage } from "@/lib/api/errors";
+import { fetchUpcomingPTOEntries } from "@/lib/api/pto";
 import { formatDateParam, getMondayOf } from "@/lib/week";
 
 const weekStart = formatDateParam(getMondayOf(new Date()));
@@ -40,6 +41,15 @@ export function DashboardView() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["dashboard", weekStart],
     queryFn: () => fetchDashboard(weekStart),
+    refetchInterval: DASHBOARD_REFETCH_INTERVAL_MS,
+  });
+  // The dashboard aggregate's own pto_entries are scoped to just this
+  // week (same as its AOB/PR fields); "Upcoming PTO" is meant to show
+  // everything upcoming, so it's fetched the same way the standalone
+  // PTO page does, via a separate, shared query.
+  const ptoQuery = useQuery({
+    queryKey: ["pto", "upcoming"],
+    queryFn: fetchUpcomingPTOEntries,
     refetchInterval: DASHBOARD_REFETCH_INTERVAL_MS,
   });
 
@@ -74,7 +84,7 @@ export function DashboardView() {
 
               <WeeklyProgressCard summary={data.standupSummary} />
               <AOBPreviewCard items={data.aobItems.slice(0, 2)} />
-              <PTOPreviewCard entries={data.ptoEntries} />
+              <PTOPreviewCard entries={ptoQuery.data ?? []} />
               <PRPreviewCard links={data.pullRequestLinks} />
             </div>
           </>

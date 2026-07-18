@@ -4,9 +4,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import * as dashboardApi from "@/lib/api/dashboard";
+import * as ptoApi from "@/lib/api/pto";
 import type { Dashboard } from "@/types/dashboard";
 
 vi.mock("@/lib/api/dashboard");
+vi.mock("@/lib/api/pto");
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
@@ -60,6 +62,7 @@ describe("DashboardView", () => {
 
   it("shows the submission banner's counts once the dashboard loads", async () => {
     vi.mocked(dashboardApi.fetchDashboard).mockResolvedValue(emptyDashboard);
+    vi.mocked(ptoApi.fetchUpcomingPTOEntries).mockResolvedValue([]);
 
     renderWithQueryClient();
 
@@ -72,6 +75,7 @@ describe("DashboardView", () => {
     vi.mocked(dashboardApi.fetchDashboard).mockRejectedValue(
       Object.assign(new Error("network down"), { isAxiosError: true }),
     );
+    vi.mocked(ptoApi.fetchUpcomingPTOEntries).mockResolvedValue([]);
 
     renderWithQueryClient();
 

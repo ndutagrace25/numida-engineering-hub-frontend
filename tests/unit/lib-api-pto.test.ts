@@ -5,7 +5,12 @@ vi.mock("@/lib/api/client", () => ({
 }));
 
 import { apiClient } from "@/lib/api/client";
-import { createPTOEntry, fetchPTOEntries } from "@/lib/api/pto";
+import {
+  createPTOEntry,
+  fetchPTOEntries,
+  fetchUpcomingPTOEntries,
+} from "@/lib/api/pto";
+import { formatDateParam } from "@/lib/week";
 
 const mockedGet = vi.mocked(apiClient.get);
 const mockedPost = vi.mocked(apiClient.post);
@@ -85,6 +90,47 @@ describe("fetchPTOEntries", () => {
 
     expect(entries[0].user).toBeNull();
     expect(entries[0].createdBy).toBeNull();
+  });
+});
+
+describe("fetchUpcomingPTOEntries", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("requests a 30-day lookback and drops entries that have already ended", async () => {
+    const today = new Date();
+    const todayStr = formatDateParam(today);
+    const yesterday = formatDateParam(
+      new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1),
+    );
+    const nextWeek = formatDateParam(
+      new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7),
+    );
+    const monthAway = formatDateParam(
+      new Date(today.getFullYear(), today.getMonth(), today.getDate() + 30),
+    );
+
+    mockedGet.mockResolvedValue({
+      data: {
+        message: "ok",
+        data: {
+          count: 2,
+          next: null,
+          previous: null,
+          results: [
+            { ...entryDto, id: 1, start_date: yesterday, end_date: yesterday },
+            { ...entryDto, id: 2, start_date: nextWeek, end_date: monthAway },
+          ],
+        },
+      },
+    });
+
+    const entries = await fetchUpcomingPTOEntries();
+
+    expect(mockedGet).toHaveBeenCalledWith("/pto/", {
+      params: { date_after: expect.any(String), page_size: 50 },
+    });
+    expect(entries.map((e) => e.id)).toEqual([2]);
+    expect(entries[0].endDate >= todayStr).toBe(true);
   });
 });
 
