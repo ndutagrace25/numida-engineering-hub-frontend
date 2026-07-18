@@ -7,7 +7,6 @@ import { AOBPreviewCard } from "@/components/dashboard/aob-preview-card";
 import { MyStandupCard } from "@/components/dashboard/my-standup-card";
 import { PRPreviewCard } from "@/components/dashboard/pr-preview-card";
 import { PTOPreviewCard } from "@/components/dashboard/pto-preview-card";
-import { RecentActivityCard } from "@/components/dashboard/recent-activity-card";
 import { SubmissionBanner } from "@/components/dashboard/submission-banner";
 import { WeeklyProgressCard } from "@/components/dashboard/weekly-progress-card";
 import { OnlineList } from "@/components/presence/online-list";
@@ -21,7 +20,6 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { fetchDashboard } from "@/lib/api/dashboard";
 import { getErrorMessage } from "@/lib/api/errors";
-import { ACTIVITY } from "@/lib/fixtures/activity";
 import { formatDateParam, getMondayOf } from "@/lib/week";
 
 const weekStart = formatDateParam(getMondayOf(new Date()));
@@ -29,9 +27,7 @@ const weekStart = formatDateParam(getMondayOf(new Date()));
 /**
  * The dashboard's real data: GET /dashboard/ aggregates standup
  * submissions, presence, AOB, PTO, and pull request links for the
- * current week in one call. Recent Activity is the one exception — the
- * backend has no activity-feed endpoint, so it stays on fixture data
- * (see the README/report).
+ * current week in one call.
  */
 // Polls so presence, standup submissions, and other teammates' activity
 // show up without a manual refresh — half the presence heartbeat's own
@@ -80,8 +76,6 @@ export function DashboardView() {
               <AOBPreviewCard items={data.aobItems.slice(0, 2)} />
               <PTOPreviewCard entries={data.ptoEntries} />
               <PRPreviewCard links={data.pullRequestLinks} />
-
-              <RecentActivityCard activity={ACTIVITY} />
             </div>
           </>
         )}

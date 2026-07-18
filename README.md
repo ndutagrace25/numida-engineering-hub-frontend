@@ -8,9 +8,7 @@ PTO, and pull-request links, backed by the
 to the real Django backend (see [Authentication](#authentication),
 [Standups](#standups), and [PTO](#pto) below). AOB and Pull Requests still
 run on local fixture data in `lib/fixtures/` and are connected to the
-backend in later tasks — the Dashboard's own "Recent Activity" widget
-stays on fixture data too, since the backend has no activity-feed
-endpoint.
+backend in later tasks.
 
 ## Tech stack
 
@@ -205,8 +203,7 @@ reason.
 
 `GET /dashboard/?week_start=<Monday>` is a single aggregate endpoint —
 standup submission totals, that week's standups, presence, AOB, PTO, and
-pull request links — powering every dashboard widget except Recent
-Activity (no backend equivalent exists, so it stays on `lib/fixtures/`).
+pull request links — powering every dashboard widget.
 `lib/api/dashboard.ts` maps the response to `types/dashboard.ts`;
 `components/dashboard/dashboard-view.tsx` fetches it via TanStack Query,
 always for the current week (`lib/week.ts` computes that week's Monday,
