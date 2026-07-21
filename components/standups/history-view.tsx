@@ -38,12 +38,18 @@ export function HistoryView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab") === "team" ? "team" : "my";
-  const [filters, setFilters] = useState<HistoryFiltersValue>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<HistoryFiltersValue>(() => ({
+    ...DEFAULT_FILTERS,
+    engineer: searchParams.get("engineer") ?? DEFAULT_FILTERS.engineer,
+  }));
   const { user } = useAuth();
 
   const monthOptions = useMemo(() => getMonthOptions(), []);
   const weekOptions = useMemo(() => getWeekOptions(), []);
-  const usersQuery = useQuery({ queryKey: ["users"], queryFn: fetchUsers });
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: () => fetchUsers(),
+  });
 
   let dateAfter: string | undefined;
   let dateBefore: string | undefined;

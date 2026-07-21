@@ -31,6 +31,7 @@ export function toAOBItem(dto: AOBItemDto): AOBItem {
 
 export interface AOBListParams {
   pageSize?: number;
+  search?: string;
 }
 
 export interface AOBListResult {
@@ -48,7 +49,10 @@ export async function fetchAOBItems(
   const { data } = await apiClient.get<
     ApiSuccessResponse<PaginatedData<AOBItemDto>>
   >("/aob-items/", {
-    params: { page_size: params.pageSize ?? 50 },
+    params: {
+      page_size: params.pageSize ?? 50,
+      search: params.search || undefined,
+    },
   });
   return { items: data.data.results.map(toAOBItem), count: data.data.count };
 }

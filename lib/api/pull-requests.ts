@@ -33,6 +33,7 @@ export function toPullRequestLink(dto: PullRequestLinkDto): PullRequestLink {
 
 export interface PullRequestListParams {
   pageSize?: number;
+  search?: string;
 }
 
 export interface PullRequestListResult {
@@ -47,7 +48,10 @@ export async function fetchPullRequestLinks(
   const { data } = await apiClient.get<
     ApiSuccessResponse<PaginatedData<PullRequestLinkDto>>
   >("/pull-request-links/", {
-    params: { page_size: params.pageSize ?? 50 },
+    params: {
+      page_size: params.pageSize ?? 50,
+      search: params.search || undefined,
+    },
   });
   return {
     items: data.data.results.map(toPullRequestLink),
