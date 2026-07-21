@@ -3,13 +3,11 @@ import { Search } from "lucide-react";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { UserMenu } from "@/components/layout/user-menu";
 import { Input } from "@/components/ui/input";
+import { formatWeekRangeLabel, getMondayOf, shiftWeek, formatDateParam } from "@/lib/week";
 
 export interface TopBarProps {
   title: string;
 }
-
-/** The current mock week shown across every authenticated page's top bar. */
-const CURRENT_WEEK_LABEL = "Week of Jul 14–18, 2026";
 
 /**
  * The 64px header bar from the design: page title, search, current week,
@@ -17,6 +15,10 @@ const CURRENT_WEEK_LABEL = "Week of Jul 14–18, 2026";
  * feature endpoints yet), matching the task's mock-data-only scope.
  */
 export function TopBar({ title }: TopBarProps) {
+  const weekStart = formatDateParam(getMondayOf(new Date()));
+  const weekEnd = shiftWeek(weekStart, 6);
+  const currentWeekLabel = `Week of ${formatWeekRangeLabel(weekStart, weekEnd)}, ${weekStart.slice(0, 4)}`;
+
   return (
     <header className="border-border flex h-16 min-h-16 items-center justify-between gap-4 border-b px-4 sm:gap-6 sm:px-7">
       <div className="flex items-center gap-3">
@@ -45,7 +47,7 @@ export function TopBar({ title }: TopBarProps) {
 
       <div className="flex items-center gap-3.5 whitespace-nowrap sm:gap-4">
         <div className="text-muted-foreground border-border hidden rounded-full border px-2.5 py-1 text-[12.5px] sm:block">
-          {CURRENT_WEEK_LABEL}
+          {currentWeekLabel}
         </div>
         <UserMenu />
       </div>
